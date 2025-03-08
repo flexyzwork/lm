@@ -1,0 +1,61 @@
+{
+  "name": "turbo-ts-cli-work",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "packageManager": "pnpm@10.4.1",
+  "devDependencies": {
+    "prettier": "^3.5.3",
+    "turbo": "^2.4.4",
+    "typescript": "^5.8.2"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "check-types": "turbo run check-types",
+    "db": "pnpm --filter @packages/common",
+    "db:d": "pnpm db drop",
+    "db:g": "pnpm db generate",
+    "db:m": "pnpm db migrate",
+    "db:s": "pnpm db seed",
+    "db:p": "pnpm db push",
+    "pl": "pnpm --filter @infra/pulumi-aws",
+    "pl:u": "pnpm pl make",
+    "pl:d": "pnpm pl down",
+    "dev": "turbo run dev",
+    "docker": "pnpm --filter @packages/docker",
+    "format": "prettier --write .",
+    "lint": "turbo run lint",
+    "deploy": "turbo run deploy",
+    "test": "turbo run test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "@clerk/shared",
+      "@nestjs/core",
+      "@prisma/client",
+      "@pulumi/docker",
+      "@pulumi/docker-build",
+      "@scarf/scarf",
+      "@swc/core",
+      "aws-sdk",
+      "canvas",
+      "core-js",
+      "esbuild",
+      "fsevents",
+      "msgpackr-extract",
+      "protobufjs",
+      "sharp"
+    ],
+    "onlyBuiltDependencies": [
+      "@prisma/engines",
+      "bcrypt",
+      "browser-tabs-lock",
+      "canvas",
+      "msw",
+      "prisma"
+    ]
+  }
+}

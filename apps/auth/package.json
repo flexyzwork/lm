@@ -1,0 +1,94 @@
+{
+  "name": "@apps/auth",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "types": "",
+  "publishConfig": {},
+  "scripts": {
+    "build": "tsup --clean",
+    "check-types": "tsc --noEmit",
+    "dev": "tsup --watch & nodemon",
+    "lint": "eslint .",
+    "test": "NODE_ENV=test jest",
+    "start": "node dist/main"
+  },
+  "dependencies": {
+    "@nestjs-modules/ioredis": "^2.0.2",
+    "@nestjs/common": "^11.0.9",
+    "@nestjs/config": "^4.0.0",
+    "@nestjs/core": "^11.0.9",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/platform-express": "^11.0.10",
+    "@nestjs/swagger": "^11.0.3",
+    "@packages/common": "workspace:^",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "debug": "^4.4.0",
+    "drizzle-orm": "^0.39.3",
+    "express": "^4.21.2",
+    "ioredis": "^5.5.0",
+    "lodash": "^4.17.21",
+    "multer": "1.4.5-lts.1",
+    "nest-winston": "^1.10.2",
+    "nestjs-zod": "^4.2.1",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "pg": "^8.13.1",
+    "reflect-metadata": "^0.2.2"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "dist"
+    ],
+    "ext": "js",
+    "exec": "node dist/main.js"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@nestjs/testing": "^11.0.9",
+    "@packages/eslint": "workspace:^",
+    "@packages/tsconfig": "workspace:^",
+    "@swc/core": "^1.10.15",
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/debug": "^4.1.12",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.14",
+    "@types/lodash": "^4.17.16",
+    "@types/multer": "^1.4.12",
+    "@types/passport-local": "^1.0.38",
+    "@types/pg": "^8.11.11",
+    "@types/supertest": "^6.0.2",
+    "jest": "^29.7.0",
+    "jest-mock-extended": "4.0.0-beta1",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
+    "tsup": "^8.3.6"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testMatch": [
+      "<rootDir>/**/*.spec.ts"
+    ],
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "src/**/*.(t|j)s",
+      "!src/**/*.spec.ts"
+    ],
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node",
+    "setupFiles": [
+      "dotenv/config"
+    ]
+  }
+}

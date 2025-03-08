@@ -1,19 +1,49 @@
-**/node_modules/
-**/dist/
+# Dependencies
+node_modules
 
+# Builds
+.next/
+dist/
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
+.env*.local
+
+# Turbo
+.turbo
+colors.ts
+ref
+apps/auth/.env
 .env
-client/.env.local
-client/.env.development
-client/.env.production
-server/.env
+.env.*
+!.env.example
+!/.env
 
-client/.next/
+
+.next
 
 .DS_Store
 Thumbs.db
 
-.vscode/
+.idea
+.env.cicd
 
-server/shared-local-instance.db
-server/dynamodb-local-metadata.json
-shared-local-instance.db
+api-tests
+docker-compose.override.yml
+.acme.sh
+
+*.md
+!README.md
+infra/pulumi-aws/.acme.sh.tar.gz
+
+.turbo
+
+.logs

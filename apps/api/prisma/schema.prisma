@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  INSTRUCTOR
+}
+
+enum Level {
+  Beginner
+  Intermediate
+  Advanced
+}
+
+enum CourseStatus {
+  Draft
+  Published
+}
+
+enum ChapterType {
+  Text
+  Quiz
+  Video
+}
+
+model User {
+  userId      String   @id
+  email       String   @unique
+  name        String
+  createdAt   DateTime @default(now())
+  role        UserRole @default(USER)
+  settings    Json
+
+  // 🔥 연관 관계
+  transactions      Transaction[]
+  courseProgress   UserCourseProgress[]
+  enrollments      Enrollment[]
+  comments         Comment[]
+}
+
+model Transaction {
+  transactionId    String  @id @default(uuid())
+  userId           String
+  dateTime         DateTime @default(now())
+  courseId         String
+  paymentProvider  String
+  amount           Int
+
+  // 🔥 관계 설정 (강의와 연결)
+  course  Course  @relation(fields: [courseId], references: [courseId], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+}
+
+model UserCourseProgress {
+  userId              String
+  courseId            String
+  enrollmentDate      DateTime @default(now())
+  overallProgress     Float   @default(0)
+  lastAccessedTimestamp DateTime @default(now())
+  sections            Json
+
+  // 🔥 관계 설정
+  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [courseId], onDelete: Cascade)
+
+  @@id([userId, courseId])
+}
+
+model Course {
+  courseId    String    @id @default(uuid())
+  teacherId   String
+  teacherName String
+  title       String
+  description String?
+  category    String
+  image       String?
+  price       Int?
+  level       Level
+  status      CourseStatus
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // 🔥 관계 설정
+  sections        Section[]
+  transactions    Transaction[]
+  userCourseProgress UserCourseProgress[]
+  enrollments    Enrollment[]
+  comments       Comment[]
+}
+
+model Section {
+  sectionId         String    @id @default(uuid())
+  courseId          String
+  course           Course @relation(fields: [courseId], references: [courseId], onDelete: Cascade)
+  sectionTitle     String
+  sectionDescription String?
+  chapters        Chapter[]
+}
+
+model Chapter {
+  chapterId  String @id @default(uuid())
+  sectionId  String
+  section    Section @relation(fields: [sectionId], references: [sectionId], onDelete: Cascade)
+  type       ChapterType
+  title      String
+  content    String
+
+  comments   Comment[]
+  video      VideoMetadata? @relation(name: "ChapterToVideoMetadata")
+}
+
+model Comment {
+  commentId   String @id @default(uuid())
+  userId      String
+  chapterId   String
+  text        String
+  timestamp   DateTime @default(now())
+
+  // 🔥 관계 설정
+  user    User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapterId], references: [chapterId], onDelete: Cascade)
+
+  Course Course[]
+}
+
+model Enrollment {
+  userId      String
+  courseId    String
+  enrolledAt  DateTime @default(now())
+
+  // 🔥 관계 설정
+  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [courseId], onDelete: Cascade)
+
+  @@id([userId, courseId])
+}
+
+model VideoMetadata {
+  videoId       String @id @default(uuid())
+  chapterId     String @unique
+  url           String
+  duration      Int
+  format        String
+
+  // 🔥 관계 설정
+  chapter Chapter @relation(name: "ChapterToVideoMetadata", fields: [chapterId], references: [chapterId], onDelete: Cascade)  
+}

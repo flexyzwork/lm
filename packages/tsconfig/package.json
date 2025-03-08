@@ -1,0 +1,24 @@
+{
+  "name": "@packages/tsconfig",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "types": "",
+  "exports": {
+    "./base.json": "./base.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {},
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.4"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "dist"
+    ],
+    "ext": "js",
+    "exec": "node dist/index.js"
+  }
+}

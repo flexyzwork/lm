@@ -1,0 +1,79 @@
+services:
+  nginx:
+    build:
+      context: ./apps/nginx
+    restart: always
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./apps/nginx/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
+      - ./apps/nginx/nginx.conf.template.ssl:/etc/nginx/nginx.conf.template.ssl:ro
+      - ./apps/nginx/entrypoint.sh:/entrypoint.sh:ro
+      - /home/ubuntu/.acme.sh:/root/.acme.sh:rw
+    networks:
+      - app-network
+    depends_on:
+      - backend-${ACTIVE}
+      - frontend-${ACTIVE}
+    environment:
+      - ACTIVE=${ACTIVE}
+    env_file:
+      - .env
+    entrypoint: ['/bin/sh', '/entrypoint.sh']
+
+  backend-green:
+    image: kix.ocir.io/axunckhvyv1v/lm-backend:green
+    restart: always
+    ports:
+      - '8003:8001'
+    env_file:
+      - ./apps/server/.env
+    volumes:
+      - backend_data:/app/data
+    networks:
+      - app-network
+
+  backend-blue:
+    image: kix.ocir.io/axunckhvyv1v/lm-backend:blue
+    restart: always
+    ports:
+      - '8002:8001'
+    env_file:
+      - ./apps/server/.env
+    volumes:
+      - backend_data:/app/data
+    networks:
+      - app-network
+
+  frontend-green:
+    image: kix.ocir.io/axunckhvyv1v/lm-frontend:green
+    restart: always
+    ports:
+      - '3003:3000'
+    env_file:
+      - ./apps/client/.env
+    volumes:
+      - frontend_data:/app/data
+    networks:
+      - app-network
+
+  frontend-blue:
+    image: kix.ocir.io/axunckhvyv1v/lm-frontend:blue
+    restart: always
+    ports:
+      - '3002:3000'
+    env_file:
+      - ./apps/client/.env
+    volumes:
+      - frontend_data:/app/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  backend_data:
+  frontend_data:

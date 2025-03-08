@@ -1,0 +1,19 @@
+{
+  "name": "@infra/pulumi-aws",
+  "main": "index.ts",
+  "scripts": {
+    "make": "pulumi up && ./deploy_acme.sh",
+    "down": "pulumi destroy"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@pulumi/aws": "^6.69.0",
+    "@pulumi/awsx": "^2.21.0",
+    "@pulumi/pulumi": "^3.152.0",
+    "dotenv": "^16.4.7"
+  },
+  "packageManager": "pnpm@10.4.1"
+}
