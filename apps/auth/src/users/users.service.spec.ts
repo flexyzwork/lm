@@ -28,14 +28,15 @@ describe('UsersService', () => {
   // ✅ `getOneByEmail()` 테스트
   it('should return a user by email', async () => {
     const mockUser: User = {
-      id: '1',
-      provider: 'email' as const,
+      userId: 'testUserId',
+      provider: 'EMAIL' as const,
       providerId: null,
       email: 'test@example.com',
       password: 'hashedPassword',
-      role: 'student',
+      role: 'USER' as 'USER' | 'INSTRUCTOR',
       name: 'Test User',
       picture: null,
+      updatedAt: new Date(),
       createdAt: new Date(),
     };
 

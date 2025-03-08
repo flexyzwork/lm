@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
-import { getAuth } from '@clerk/express';
+// import { getAuth } from '@clerk/express';
 
 const prisma = new PrismaClient();
 
@@ -103,7 +103,8 @@ export const createCourse = async (req: Request, res: Response): Promise<void> =
 export const updateCourse = async (req: Request, res: Response): Promise<void> => {
   const { courseId } = req.params;
   let updateData = { ...req.body };
-  const { userId } = getAuth(req);
+  // const { userId } = getAuth(req);
+  const userId = req.user?.userId;
 
   try {
     const existingCourse = await prisma.course.findUnique({
@@ -227,7 +228,8 @@ export const updateCourse = async (req: Request, res: Response): Promise<void> =
  */
 export const deleteCourse = async (req: Request, res: Response): Promise<void> => {
   const { courseId } = req.params;
-  const { userId } = getAuth(req);
+  // const { userId } = getAuth(req);
+  const userId = req.user?.userId;
 
   try {
     const course = await prisma.course.findUnique({ where: { courseId } });

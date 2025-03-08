@@ -2,6 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-github';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
@@ -17,7 +18,8 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
   async validate(accessToken: string, refreshToken: string, profile: any, done: (error: any, user: any) => void) {
     const { id, username, emails, photos } = profile;
     const user = {
-      provider: 'github',
+      userId: uuidv4(),
+      provider: 'GITHUB',
       providerId: id,
       email: emails?.[0]?.value || `${username}@github.com`,
       name: username || null,

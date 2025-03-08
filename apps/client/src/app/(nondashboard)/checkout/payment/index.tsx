@@ -7,12 +7,12 @@ import {
 } from "@stripe/react-stripe-js";
 import { useCheckoutNavigation } from "@/hooks/useCheckoutNavigation";
 import { useCurrentCourse } from "@/hooks/useCurrentCourse";
-import { useClerk, useUser } from "@clerk/nextjs";
 import CoursePreview from "@/components/CoursePreview";
 import { CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCreateTransactionMutation } from "@/state/api";
 import { toast } from "sonner";
+import { useAuthStore } from "@/stores/authStore";
 
 const PaymentPageContent = () => {
   const stripe = useStripe();
@@ -20,8 +20,7 @@ const PaymentPageContent = () => {
   const [createTransaction] = useCreateTransactionMutation();
   const { navigateToStep } = useCheckoutNavigation();
   const { course, courseId } = useCurrentCourse();
-  const { user } = useUser();
-  const { signOut } = useClerk();
+  const { user, logout } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +47,7 @@ const PaymentPageContent = () => {
     if (result.paymentIntent?.status === "succeeded") {
       const transactionData: Partial<Transaction> = {
         transactionId: result.paymentIntent.id,
-        userId: user?.id,
+        userId: user?.userId,
         courseId: courseId,
         paymentProvider: "stripe",
         amount: course?.price || 0,
@@ -59,7 +58,7 @@ const PaymentPageContent = () => {
   };
 
   const handleSignOutAndNavigate = async () => {
-    await signOut();
+    logout();
     navigateToStep(1);
   };
 

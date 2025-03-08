@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
-import { Bell, BookOpen } from "lucide-react";
-import Link from "next/link";
-import React, { useState } from "react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
+import { Bell, BookOpen } from 'lucide-react';
+import Link from 'next/link';
+import React from 'react';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { cn } from '@/lib/utils';
+import UserProfileButton from '@/components/UserProfileButton';
+import { useAuthStore } from '@/stores/authStore';
 
 const Navbar = ({ isCoursePage }: { isCoursePage: boolean }) => {
-  const { user } = useUser();
-  const userRole = user?.publicMetadata?.userType as "student" | "teacher";
+  const { user } = useAuthStore();
+  const userRole = user?.role || 'USER';
 
   return (
     <nav className="dashboard-navbar">
@@ -24,8 +24,8 @@ const Navbar = ({ isCoursePage }: { isCoursePage: boolean }) => {
             <div className="relative group">
               <Link
                 href="/search"
-                className={cn("dashboard-navbar__search-input", {
-                  "!bg-customgreys-secondarybg": isCoursePage,
+                className={cn('dashboard-navbar__search-input', {
+                  '!bg-customgreys-secondarybg': isCoursePage,
                 })}
                 scroll={false}
               >
@@ -43,20 +43,7 @@ const Navbar = ({ isCoursePage }: { isCoursePage: boolean }) => {
             <Bell className="nondashboard-navbar__notification-icon" />
           </button>
 
-          <UserButton
-            appearance={{
-              baseTheme: dark,
-              elements: {
-                userButtonOuterIdentifier: "text-customgreys-dirtyGrey",
-                userButtonBox: "scale-90 sm:scale-100",
-              },
-            }}
-            showName={true}
-            userProfileMode="navigation"
-            userProfileUrl={
-              userRole === "teacher" ? "/teacher/profile" : "/user/profile"
-            }
-          />
+          <UserProfileButton userProfileUrl={userRole === 'USER' ? '/user/profile' : '/teacher/profile'} />
         </div>
       </div>
     </nav>

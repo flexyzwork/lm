@@ -1,8 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BaseQueryApi, FetchArgs } from "@reduxjs/toolkit/query";
-import { User } from "@clerk/nextjs/server";
-import { Clerk } from "@clerk/clerk-js";
 import { toast } from "sonner";
+import { useAuthStore } from "@/stores/authStore";
 
 const customBaseQuery = async (
   args: string | FetchArgs,
@@ -10,9 +9,9 @@ const customBaseQuery = async (
   extraOptions: any
 ) => {
   const baseQuery = fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
+    baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || '/api',
     prepareHeaders: async (headers) => {
-      const token = await window.Clerk?.session?.getToken();
+      const token = useAuthStore.getState().accessToken
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
@@ -70,8 +69,8 @@ export const api = createApi({
     */
     updateUser: build.mutation<User, Partial<User> & { userId: string }>({
       query: ({ userId, ...updatedUser }) => ({
-        url: `users/clerk/${userId}`,
-        method: "PUT",
+        url: `users/${userId}`,
+        method: "PATCH",
         body: updatedUser,
       }),
       invalidatesTags: ["Users"],

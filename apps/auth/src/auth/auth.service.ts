@@ -9,6 +9,8 @@ import { ConfigService } from '@nestjs/config';
 import bcrypt from 'bcrypt';
 import { schema, DRIZZLE, User, getEnv } from '@packages/common';
 import type { CreateUserDto } from '@packages/common';
+import { v4 as uuidv4 } from 'uuid';
+
 
 const { users } = schema;
 
@@ -28,7 +30,7 @@ export class AuthService {
     if (!userData.provider || !userData.providerId) throw new UnauthorizedException('Invalid user data');
 
     // ✅ provider 유효성 검사 먼저 수행
-    if (!['google', 'github'].includes(userData.provider)) {
+    if (!['GOOGLE', 'GITHUB'].includes(userData.provider)) {
       throw new UnauthorizedException('Unsupported provider');
     }
 
@@ -61,7 +63,8 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await this.usersService.create({
-      provider: 'email',
+      userId: uuidv4(),
+      provider: 'EMAIL',
       email: userData.email,
       password: hashedPassword,
     });
@@ -87,8 +90,8 @@ export class AuthService {
   }
 
   /** 🔹 로그아웃 (Refresh Token 삭제) */
-  async logout(id: string) {
-    const deleted = await this.redis.del(`refreshToken:${id}`);
+  async logout(userId: string) {
+    const deleted = await this.redis.del(`refreshToken:${userId}`);
     if (deleted === 0) {
       console.log('📌 [DEBUG] Refresh token not found');
     }
@@ -106,7 +109,7 @@ export class AuthService {
   /** 🔹 JWT & Refresh Token 발급 */
   private async generateTokens(user: Omit<User, 'password'>) {
     const payload = {
-      id: user.id,
+      userId: user.userId,
       provider: user.provider,
       providerId: user.providerId,
       email: user.email,
@@ -118,7 +121,7 @@ export class AuthService {
     });
 
     const refreshToken = this.jwtService.sign(
-      { sub: user.id },
+      { sub: user.userId },
       {
         secret: getEnv(this.configService, 'REFRESH_TOKEN_SECRET'),
         expiresIn: '7d',
@@ -126,7 +129,7 @@ export class AuthService {
     );
 
     // 🔹 Refresh Token을 Redis에 저장 (7일)
-    await this.redis.set(`refreshToken:${user.id}`, refreshToken, 'EX', 604800);
+    await this.redis.set(`refreshToken:${user.userId}`, refreshToken, 'EX', 604800);
 
     return { accessToken, refreshToken };
   }

@@ -27,7 +27,7 @@ export class OwnershipGuard<T> implements CanActivate {
     }
 
     // ✅ 소유자 검증 (동적으로 설정한 `ownerKey` 필드와 비교)
-    if (resource[this.ownerKey] !== user.id) {
+    if (resource[this.ownerKey] !== user.userId) {
       throw new ForbiddenException('해당 리소스를 수정하거나 삭제할 권한이 없습니다.');
     }
 

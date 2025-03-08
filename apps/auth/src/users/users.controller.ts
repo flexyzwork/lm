@@ -17,9 +17,9 @@ export class UsersController extends BaseController {
   }
 
   // ✅ 특정 사용자 조회 (GET)
-  @Get(':id')
-  async getUser(@Param('id') id: string) {
-    return this.usersService.getOne(id);
+  @Get(':userId')
+  async getUser(@Param('userId') userId: string) {
+    return this.usersService.getOne(userId);
   }
 
   // ✅ 전체 사용자 조회 (GET)
@@ -29,22 +29,22 @@ export class UsersController extends BaseController {
   }
 
   // ✅ 사용자 정보 업데이트 (Patch)
-  @Patch(':id')
+  @Patch(':userId')
   @API({
     authRequired: ['jwt'],
     // role: Role.OWNER,
   })
-  async update(@Param('id') id: string, @Body() body: UpdateUserDto) {
-    return this.usersService.update(id, body);
+  async update(@Param('userId') userId: string, @Body() body: UpdateUserDto) {
+    return this.usersService.update(userId, body);
   }
 
   // ✅ 사용자 삭제 (DELETE)
-  @Delete(':id')
+  @Delete(':userId')
   @API({
     authRequired: ['jwt'],
     // role: Role.ADMIN,
   })
-  async deleteUser(@Param('id') id: string) {
-    return await this.usersService.delete(id);
+  async deleteUser(@Param('userId') userId: string) {
+    return await this.usersService.delete(userId);
   }
 }

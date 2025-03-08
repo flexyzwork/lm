@@ -20,19 +20,20 @@ describe('AuthService', () => {
 
   /** 🔹 테스트에서 공통으로 사용할 데이터 */
   const mockUserData = {
-    provider: 'google',
+    provider: 'GOOGLE',
     providerId: '123',
     email: 'test@example.com',
   };
 
   const mockUser = {
-    id: '1',
+    userId: 'test_user_id',
+    updatedAt: null,
     createdAt: null,
     email: mockUserData.email,
-    provider: mockUserData.provider as 'email' | 'google' | 'github',
+    provider: mockUserData.provider as 'EMAIL' | 'GOOGLE' | 'GITHUB',
     providerId: mockUserData.providerId,
     password: 'hashedPassword',
-    role: 'student' as 'student' | 'teacher',
+    role: 'USER' as 'USER' | 'INSTRUCTOR',
     name: 'Test User',
     picture: null,
   };
@@ -130,7 +131,7 @@ describe('AuthService', () => {
       const result = await authService.validateOAuthLogin(mockUserData as any);
 
       expect(result.user).toEqual(mockUser);
-      expect((await result.tokens).accessToken).toBe(expectedTokens.accessToken);
+      expect(result.tokens.accessToken).toBe(expectedTokens.accessToken);
     });
 
     it('should throw an error if provider is not supported', async () => {
@@ -140,7 +141,7 @@ describe('AuthService', () => {
           provider: 'invalidProvider' as any,
         })
       ).rejects.toThrow(UnauthorizedException);
-    }); 
+    });
   });
 
   /** ✅ 이메일 회원가입 */
@@ -151,7 +152,7 @@ describe('AuthService', () => {
       jwtService.sign.mockReturnValue(expectedTokens.accessToken);
 
       const result = await authService.register({
-        provider: 'email',
+        provider: 'EMAIL',
         email: mockUserData.email,
         password: 'password123',
       });
@@ -165,7 +166,7 @@ describe('AuthService', () => {
 
       await expect(
         authService.register({
-          provider: 'email',
+          provider: 'EMAIL',
           email: mockUserData.email,
           password: 'password123',
         })

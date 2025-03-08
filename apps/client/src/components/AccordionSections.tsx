@@ -10,7 +10,7 @@ import { FileText } from "lucide-react";
 const AccordionSections = ({ sections }: AccordionSectionsProps) => {
   return (
     <Accordion type="multiple" className="w-full">
-      {sections.map((section) => (
+      {sections?.map((section) => (
         <AccordionItem
           key={section.sectionId}
           value={section.sectionTitle}
@@ -21,7 +21,7 @@ const AccordionSections = ({ sections }: AccordionSectionsProps) => {
           </AccordionTrigger>
           <AccordionContent className="accordion-section__content">
             <ul>
-              {section.chapters.map((chapter) => (
+              {section?.chapters?.map((chapter) => (
                 <li
                   key={chapter.chapterId}
                   className="accordion-section__chapter"

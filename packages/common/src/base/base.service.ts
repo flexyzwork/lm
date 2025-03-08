@@ -19,17 +19,18 @@ export abstract class BaseService<
     protected readonly table: TableType
   ) {}
 
-  getIdColumn(isUserId?: boolean): PgColumn<any> {
-    let id: PgColumn<any>;
+
+  getIdColumn(): PgColumn<any> {
     const columns = Reflect.get(this.table, Symbol.for('drizzle:Columns')) as Record<string, PgColumn<any>>;
-    if (isUserId) {
-      if (!columns?.userId) throw new Error(`테이블 ${this.table as any}에 'userId' 컬럼이 없습니다.`);
-      else id = columns.userId;
-    } else {
-      if (!columns?.id) throw new Error(`테이블 ${this.table as any}에 'id' 컬럼이 없습니다.`);
-      else id = columns.id;
+    const possibleIdColumns = ['userId', 'courseId', 'sectionId', 'chapterId', 'transactionId', 'id'];
+  
+    for (const columnName of possibleIdColumns) {
+      if (columns?.[columnName]) {
+        return columns[columnName];
+      }
     }
-    return id;
+  
+    throw new Error(`❌ 테이블 '${this.table as any}'에서 ID 컬럼을 찾을 수 없습니다.`);
   }
 
   private prepareUpdateData(updates: Partial<InsertType>): Record<string, any> {

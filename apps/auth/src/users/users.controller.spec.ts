@@ -51,8 +51,8 @@ describe('UsersController', () => {
   /** ✅ POST /users (사용자 생성) */
   describe('create', () => {
     it('should create a new user', async () => {
-      const createUserDto: CreateUserDto = { provider: 'email', email: 'test@example.com', password: '123456' };
-      const mockUser = { id: '1', ...createUserDto } as User;
+      const createUserDto: CreateUserDto = { provider: 'EMAIL', email: 'test@example.com', password: '123456' };
+      const mockUser = { userId: '1', ...createUserDto } as User;
 
       usersService.create.mockResolvedValue(mockUser);
 
@@ -62,10 +62,10 @@ describe('UsersController', () => {
     });
   });
 
-  /** ✅ GET /users/:id (특정 사용자 조회) */
+  /** ✅ GET /users/:userId (특정 사용자 조회) */
   describe('getUser', () => {
     it('should return a user if found', async () => {
-      const mockUser = { id: '1', email: 'test@example.com' } as User;
+      const mockUser = { userId: '1', email: 'test@example.com' } as User;
       usersService.getOne.mockResolvedValue(mockUser);
 
       const result = await controller.getUser('1');
@@ -83,7 +83,7 @@ describe('UsersController', () => {
   /** ✅ GET /users (전체 사용자 조회) */
   describe('getUsers', () => {
     it('should return a list of users', async () => {
-      const mockUsers = [{ id: '1', email: 'test@example.com' } as User];
+      const mockUsers = [{ userId: '1', email: 'test@example.com' } as User];
       usersService.getAll.mockResolvedValue(mockUsers);
 
       const result = await controller.getUsers();
@@ -99,11 +99,11 @@ describe('UsersController', () => {
     });
   });
 
-  /** ✅ PATCH /users/:id (사용자 정보 업데이트) */
+  /** ✅ PATCH /users/:userId (사용자 정보 업데이트) */
   describe('update', () => {
     it('should update and return the user', async () => {
       const updateUserDto: UpdateUserDto = { name: 'Updated Name' };
-      const mockUser = { id: '1', email: 'test@example.com', name: 'Updated Name' } as User;
+      const mockUser = { userId: '1', email: 'test@example.com', name: 'Updated Name' } as User;
 
       usersService.update.mockResolvedValue(mockUser);
 
@@ -119,7 +119,7 @@ describe('UsersController', () => {
     });
   });
 
-  /** ✅ DELETE /users/:id (사용자 삭제) */
+  /** ✅ DELETE /users/:userId (사용자 삭제) */
   describe('deleteUser', () => {
     it('should delete a user', async () => {
       usersService.delete.mockResolvedValue(undefined);
@@ -138,9 +138,9 @@ describe('UsersController', () => {
   /** ✅ BaseController의 데코레이터 자동 적용 여부 확인 */
   it('should call applyAPIDecorators on initialization', () => {
     const spy = jest.spyOn(BaseController.prototype as any, 'applyAPIDecorators');
-    
+
     // ✅ UsersController 인스턴스 생성 시 BaseController의 생성자 실행
-    new UsersController(usersService);  
+    new UsersController(usersService);
 
     expect(spy).toHaveBeenCalledTimes(1);
   });

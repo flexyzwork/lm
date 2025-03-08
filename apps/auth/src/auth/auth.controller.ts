@@ -132,7 +132,7 @@ export class AuthController extends BaseController {
     @UserInfo() user: Express.User,
     @Res({ passthrough: true }) res: express.Response // passthrough 옵션 사용
   ) {
-    await this.authService.logout(user?.id);
+    await this.authService.logout(user?.userId);
     res.setHeader('Set-Cookie', this.authService.getCookieForLogOut());
     return { message: 'Logged out successfully' };
   }

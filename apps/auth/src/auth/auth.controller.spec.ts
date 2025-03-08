@@ -45,8 +45,8 @@ describe('AuthController', () => {
   /** ✅ 회원가입 테스트 */
   describe('register', () => {
     it('should register a new user and set refresh token in cookie', async () => {
-      const createUserDto: CreateUserDto = { provider: 'email', email: 'test@example.com', password: '123456' };
-      const mockUser: User = { id: '1', ...createUserDto } as User;
+      const createUserDto: CreateUserDto = { provider: 'EMAIL', email: 'test@example.com', password: '123456' };
+      const mockUser: User = { userId: '1', ...createUserDto } as User;
       const mockTokens = { accessToken: 'access-token', refreshToken: 'refresh-token' };
 
       authService.register.mockResolvedValue({ tokens: mockTokens, user: mockUser });
@@ -73,9 +73,9 @@ describe('AuthController', () => {
     it('should login a user and set refresh token in cookie', async () => {
       const credentials = { email: 'test@example.com', password: '123456' };
       const mockUser: User = {
-        id: '1',
+        userId: '1',
         email: credentials.email,
-        provider: 'email',
+        provider: 'EMAIL',
         password: 'hashedPassword',
       } as User;
       const mockTokens = { accessToken: 'access-token', refreshToken: 'refresh-token' };
@@ -105,7 +105,7 @@ describe('AuthController', () => {
       authService.logout.mockResolvedValue(true);
 
       const res = mockResponse() as express.Response;
-      await controller.logout({ id: '1' } as any, res);
+      await controller.logout({ userId: '1' } as any, res);
 
       expect(authService.logout).toHaveBeenCalledWith('1');
       expect(res.setHeader).toHaveBeenCalledWith('Set-Cookie', expect.not.stringContaining('refreshToken'));
@@ -116,7 +116,7 @@ describe('AuthController', () => {
   describe('refresh', () => {
     it('should refresh token successfully', async () => {
       const mockTokens = { accessToken: 'new-access-token', refreshToken: 'new-refresh-token' };
-      const mockUser: User = { id: '1', email: 'test@example.com', provider: 'email' } as User;
+      const mockUser: User = { userId: '1', email: 'test@example.com', provider: 'EMAIL' } as User;
 
       authService.refreshTokens.mockResolvedValue({ tokens: mockTokens, user: mockUser });
 
@@ -139,7 +139,7 @@ describe('AuthController', () => {
   /** ✅ 현재 로그인한 사용자 프로필 조회 */
   describe('getProfile', () => {
     it('should return the logged-in user profile', async () => {
-      const mockUser = { id: '1', email: 'test@example.com', provider: 'email' } as any;
+      const mockUser = { userId: '1', email: 'test@example.com', provider: 'EMAIL' } as any;
       const mockRequest = { headers: { authorization: 'Bearer access-token' } } as any;
       const result = await controller.getProfile(mockUser, mockRequest);
 
@@ -173,7 +173,7 @@ describe('AuthController', () => {
   /** ✅ 소셜 로그인 콜백 테스트 */
   describe('social login callbacks', () => {
     it('should handle Google login callback', async () => {
-      const mockUser: User = { id: '1', email: 'test@example.com', provider: 'google' } as User;
+      const mockUser: User = { userId: '1', email: 'test@example.com', provider: 'GOOGLE' } as User;
       const mockTokens = { accessToken: 'access-token', refreshToken: 'refresh-token' };
 
       authService.validateOAuthLogin.mockResolvedValue({ tokens: mockTokens, user: mockUser });

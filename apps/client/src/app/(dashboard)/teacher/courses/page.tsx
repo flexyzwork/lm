@@ -10,13 +10,13 @@ import {
   useDeleteCourseMutation,
   useGetCoursesQuery,
 } from "@/state/api";
-import { useUser } from "@clerk/nextjs";
+import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "next/navigation";
 import React, { useMemo, useState } from "react";
 
 const Courses = () => {
   const router = useRouter();
-  const { user } = useUser();
+  const { user } = useAuthStore();
   const {
     data: courses,
     isLoading,
@@ -58,8 +58,8 @@ const Courses = () => {
     if (!user) return;
 
     const result = await createCourse({
-      teacherId: user.id,
-      teacherName: user.fullName || "Unknown Teacher",
+      teacherId: user.userId,
+      teacherName: user.name || "Unknown Teacher",
     }).unwrap();
     router.push(`/teacher/courses/${result.courseId}`, {
       scroll: false,
@@ -94,7 +94,7 @@ const Courses = () => {
             course={course}
             onEdit={handleEdit}
             onDelete={handleDelete}
-            isOwner={course.teacherId === user?.id}
+            isOwner={course.teacherId === user?.userId}
           />
         ))}
       </div>

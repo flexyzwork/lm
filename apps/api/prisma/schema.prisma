@@ -13,6 +13,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+  GITHUB
+}
+
 enum UserRole {
   USER
   INSTRUCTOR
@@ -36,12 +42,17 @@ enum ChapterType {
 }
 
 model User {
-  userId      String   @id
-  email       String   @unique
-  name        String
-  createdAt   DateTime @default(now())
-  role        UserRole @default(USER)
-  settings    Json
+  userId      String       @id @default(uuid())
+  provider    AuthProvider @default(EMAIL)
+  providerId  String?     
+  email       String?      
+  password    String?
+  role        UserRole     @default(USER)
+  name        String?
+  picture     String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime?    @updatedAt
+  settings    Json?
 
   // 🔥 연관 관계
   transactions      Transaction[]
@@ -49,6 +60,8 @@ model User {
   enrollments      Enrollment[]
   comments         Comment[]
 }
+
+
 
 model Transaction {
   transactionId    String  @id @default(uuid())

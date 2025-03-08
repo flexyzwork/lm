@@ -3,14 +3,14 @@ const nextConfig = {
   // reactStrictMode: true,
   async rewrites() {
     return [
-      // {
-      //   source: '/api/auth/:path*',
-      //   destination: 'http://localhost:4000/auth/:path*', // ✅ NestJS Auth API (포트 4000)
-      // },
-      // {
-      //   source: '/api/users/:path*',
-      //   destination: 'http://localhost:4000/users/:path*', // ✅ NestJS Auth API (포트 4000)
-      // },
+      {
+        source: '/api/auth/:path*',
+        destination: 'http://localhost:4000/auth/:path*', // ✅ NestJS Auth API (포트 4000)
+      },
+      {
+        source: '/api/users/:path*',
+        destination: 'http://localhost:4000/users/:path*', // ✅ NestJS Auth API (포트 4000)
+      },
       {
         source: '/api/:path*',
         destination: 'http://localhost:8001/:path*',
