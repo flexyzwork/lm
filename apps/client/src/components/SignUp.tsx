@@ -43,7 +43,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-900 text-white p-6">
+    <div className="flex min-h-screen items-center justify-center text-white p-6">
       <div className="w-full max-w-md bg-gray-800 p-8 rounded-lg shadow-lg">
         <h2 className="text-3xl font-bold text-center">Sign Up</h2>
 

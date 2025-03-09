@@ -71,10 +71,18 @@ export async function logoutUser() {
 // ✅ 리프레시 토큰을 사용하여 새 엑세스 토큰 받기
 export async function refreshAccessToken() {
   const { login } = authStore;
+
+  console.log('🔄 Refreshing access token...');
+
   const res = await fetch('/api/auth/refresh', {
     method: 'POST',
     credentials: 'include', // ✅ HTTP Only 쿠키 자동 포함
   });
+
+  if (!res.ok) {
+    console.log('❌ Failed to refresh access token.');
+    return null;
+  }
 
   const { data } = await res.json();
   console.log('data ---> ', data);
@@ -134,8 +142,8 @@ export async function fetchProfile() {
   }
 }
 
-export const updateProfile = async (profileData: { userId: string; [key: string]: unknown }) => {
-  const res = await fetchWithAuth(`/api/users/${profileData.userId}`, {
+export const updateProfile = async (profileData: { [key: string]: unknown }) => {
+  const res = await fetchWithAuth(`/api/auth/profile`, {
     method: 'PATCH',
     body: JSON.stringify({ name: profileData.name }),
   });

@@ -8,10 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PencilIcon } from 'lucide-react';
 import Header from '@/components/Header';
 import { useAuthStore } from '@/stores/authStore';
-import { updateProfile } from '@/services/authService'; // ✅ 직접 API 호출
+import { updateProfile } from '@/services/authService';
 
 const UserProfilePage = () => {
-  const { user, setUser } = useAuthStore(); // ✅ Zustand 상태 관리
+  const { user, setUser } = useAuthStore();
   const [name, setName] = useState('');
 
   useEffect(() => {
@@ -31,8 +31,8 @@ const UserProfilePage = () => {
     if (!user?.userId) return;
 
     try {
-      const updatedUser = await updateProfile({ userId: user.userId, name });
-      setUser(updatedUser); // ✅ Zustand 상태 업데이트
+      const updatedUser = await updateProfile({ name });
+      setUser(updatedUser);
       alert('프로필이 성공적으로 업데이트되었습니다!');
     } catch (error) {
       console.error('프로필 업데이트 실패:', error);
