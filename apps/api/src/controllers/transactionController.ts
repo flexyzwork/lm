@@ -1,44 +1,43 @@
 import Stripe from "stripe";
 import dotenv from "dotenv";
 import { Request, Response } from "express";
-import Course from "../models/courseModel";
-import Transaction from "../models/transactionModel";
-import UserCourseProgress from "../models/userCourseProgressModel";
+import { PrismaClient } from "@prisma/client";
 
 dotenv.config();
 
+
 if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error(
-    "STRIPE_SECRET_KEY os required but was not found in env variables"
-  );
+  throw new Error("STRIPE_SECRET_KEY is required but was not found in env variables");
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-export const listTransactions = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+const prisma = new PrismaClient();
+const prismaTx = prisma.transaction;
+/**
+ * 🔹 사용자의 트랜잭션(결제 내역) 조회
+ */
+export const listTransactions = async (req: Request, res: Response): Promise<void> => {
   const { userId } = req.query;
 
   try {
     const transactions = userId
-      ? await Transaction.query("userId").eq(userId).exec()
-      : await Transaction.scan().exec();
+      ? await prismaTx.findMany({
+          where: { userId: String(userId) },
+          include: { course: true },
+        })
+      : await prismaTx.findMany({ include: { course: true } });
 
-    res.json({
-      message: "Transactions retrieved successfully",
-      data: transactions,
-    });
+    res.json({ message: "Transactions retrieved successfully", data: transactions });
   } catch (error) {
+    console.error("❌ Error retrieving transactions:", error);
     res.status(500).json({ message: "Error retrieving transactions", error });
   }
 };
 
-export const createStripePaymentIntent = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+/**
+ * 🔹 Stripe 결제 요청 (클라이언트용)
+ */
+export const createStripePaymentIntent = async (req: Request, res: Response): Promise<void> => {
   let { amount } = req.body;
 
   if (!amount || amount <= 0) {
@@ -55,77 +54,79 @@ export const createStripePaymentIntent = async (
       },
     });
 
-    res.json({
-      message: "",
-      data: {
-        clientSecret: paymentIntent.client_secret,
-      },
-    });
+    res.json({ message: "Payment intent created", data: { clientSecret: paymentIntent.client_secret } });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error creating stripe payment intent", error });
+    console.error("❌ Error creating Stripe payment intent:", error);
+    res.status(500).json({ message: "Error creating stripe payment intent", error });
   }
 };
 
-export const createTransaction = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+/**
+ * 🔹 트랜잭션 생성 (결제 성공 시 실행)
+ */
+export const createTransaction = async (req: Request, res: Response): Promise<void> => {
   const { userId, courseId, transactionId, amount, paymentProvider } = req.body;
 
   try {
-    // 1. get course info
-    const course = await Course.get(courseId);
-
-    // 2. create transaction record
-    const newTransaction = new Transaction({
-      dateTime: new Date().toISOString(),
-      userId,
-      courseId,
-      transactionId,
-      amount,
-      paymentProvider,
+    const course = await prisma.course.findUnique({
+      where: { courseId },
+      include: { sections: { include: { chapters: true } } },
     });
-    await newTransaction.save();
 
-    // 3. create initial course progress
-    const initialProgress = new UserCourseProgress({
-      userId,
-      courseId,
-      enrollmentDate: new Date().toISOString(),
-      overallProgress: 0,
-      sections: course.sections.map((section: any) => ({
-        sectionId: section.sectionId,
-        chapters: section.chapters.map((chapter: any) => ({
-          chapterId: chapter.chapterId,
-          completed: false,
-        })),
-      })),
-      lastAccessedTimestamp: new Date().toISOString(),
-    });
-    await initialProgress.save();
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
 
-    // 4. add enrollment to relevant course
-    await Course.update(
-      { courseId },
-      {
-        $ADD: {
-          enrollments: [{ userId }],
+    // 🔥 Prisma 트랜잭션으로 데이터 일괄 저장 (원자적 처리)
+    const createdTransaction = await prisma.$transaction(async (tx) => {
+      // 1️⃣ 트랜잭션 기록 추가
+      const newTransaction = await tx.transaction.create({
+        data: {
+          transactionId,
+          userId,
+          courseId,
+          amount,
+          paymentProvider,
+          dateTime: new Date(),
         },
-      }
-    );
+      });
 
-    res.json({
-      message: "Purchased Course successfully",
-      data: {
-        transaction: newTransaction,
-        courseProgress: initialProgress,
-      },
+      // 2️⃣ 학습 진행 기록 추가
+      const newProgress = await tx.userCourseProgress.create({
+        data: {
+          userId,
+          courseId,
+          enrollmentDate: new Date(),
+          overallProgress: 0,
+          lastAccessedTimestamp: new Date(),
+          sections: JSON.stringify(
+            course.sections.map((section) => ({
+              sectionId: section.sectionId,
+              chapters: section.chapters.map((chapter) => ({
+                chapterId: chapter.chapterId,
+                completed: false,
+              })),
+            }))
+          ),
+        },
+      });
+
+      // 3️⃣ 수강 기록 추가 (Enrollment)
+      await tx.enrollment.create({
+        data: {
+          userId,
+          courseId,
+          enrolledAt: new Date(),
+        },
+      });
+
+      return { transaction: newTransaction, progress: newProgress };
     });
+
+    res.json({ message: "Purchased Course successfully", data: createdTransaction });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error creating transaction and enrollment", error });
+    console.error("❌ Error creating transaction and enrollment:", error);
+    res.status(500).json({ message: "Error creating transaction and enrollment", error });
   }
 };

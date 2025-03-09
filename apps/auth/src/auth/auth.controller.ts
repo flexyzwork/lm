@@ -1,11 +1,11 @@
-import { Controller, Post, Body, Res, Req, UnauthorizedException, Get } from '@nestjs/common';
+import { Controller, Post, Body, Res, Req, UnauthorizedException, Get, Patch } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import { zodToOpenAPI } from 'nestjs-zod';
 import express from 'express'; // for esm
 import { BaseController, getEnv, Logger, User, UserInfo, userSchemas } from '@packages/common';
-import type { CreateUserDto } from '@packages/common';
+import type { CreateUserDto, UpdateUserDto } from '@packages/common';
 import { API } from '@packages/common';
 
 const authResponseSchema = {
@@ -158,18 +158,17 @@ export class AuthController extends BaseController {
     return { token: tokens.accessToken, user };
   }
 
-  /** 📌 현재 로그인한 사용자 프로필 조회 + 토큰 반환 */
-  @Get('profile')
+  // ✅ 사용자 정보 업데이트 (Patch)
+  @Patch('profile')
   @API({
     authRequired: ['jwt'],
     requestBody: null,
     responseSchema: authResponseSchema,
   })
-  async getProfile(@UserInfo() user: Express.User, @Req() req: express.Request) {
+  async updateProfile(@UserInfo() user: Express.User, @Body() body: UpdateUserDto) {
     this.validateUserExistence(user);
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
-    return { token, user };
+    const updatedUser = await this.authService.updateProfile(user.userId, body);
+    return updatedUser;
   }
 
   @Get('health')

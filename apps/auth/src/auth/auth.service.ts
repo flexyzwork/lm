@@ -8,7 +8,7 @@ import { UsersService } from '../users/users.service';
 import { ConfigService } from '@nestjs/config';
 import bcrypt from 'bcrypt';
 import { schema, DRIZZLE, User, getEnv } from '@packages/common';
-import type { CreateUserDto } from '@packages/common';
+import type { CreateUserDto, UpdateUserDto } from '@packages/common';
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -154,5 +154,12 @@ export class AuthService {
     } catch {
       throw new UnauthorizedException('Refresh token expired or invalid');
     }
+  }
+
+  async updateProfile(userId: string, dto: UpdateUserDto) {
+    const result = await this.usersService.update(userId, dto);
+    if (!result) throw new UnauthorizedException('Failed to update user');
+    const user = await this.usersService.getOne(userId);
+    return user;
   }
 }

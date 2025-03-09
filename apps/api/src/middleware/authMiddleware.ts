@@ -1,4 +1,3 @@
-// import type { User } from "@packages/common" with { "resolution-mode": "import" };
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
