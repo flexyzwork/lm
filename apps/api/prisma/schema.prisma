@@ -131,7 +131,7 @@ model Chapter {
   content    String
 
   comments   Comment[]
-  video      VideoMetadata? @relation(name: "ChapterToVideoMetadata")
+  video      String?
 }
 
 model Comment {
@@ -158,15 +158,4 @@ model Enrollment {
   course Course @relation(fields: [courseId], references: [courseId], onDelete: Cascade)
 
   @@id([userId, courseId])
-}
-
-model VideoMetadata {
-  videoId       String @id @default(uuid())
-  chapterId     String @unique
-  url           String
-  duration      Int
-  format        String
-
-  // 🔥 관계 설정
-  chapter Chapter @relation(name: "ChapterToVideoMetadata", fields: [chapterId], references: [chapterId], onDelete: Cascade)  
 }

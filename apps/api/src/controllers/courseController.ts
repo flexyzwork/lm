@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+
+const s3Client = new S3Client({ region: process.env.AWS_REGION });
 
 const prisma = new PrismaClient();
 
@@ -154,6 +158,7 @@ export const updateCourse = async (req: Request, res: Response): Promise<void> =
                 type: chapter.type as 'Text' | 'Quiz' | 'Video',
                 title: chapter.title,
                 content: chapter.content,
+                video: chapter.video,
               }))
             : [],
         }))
@@ -196,6 +201,7 @@ export const updateCourse = async (req: Request, res: Response): Promise<void> =
               type: chapter.type,
               title: chapter.title,
               content: chapter.content,
+              video: chapter.video,
             },
             create: {
               chapterId: chapter.chapterId,
@@ -203,6 +209,7 @@ export const updateCourse = async (req: Request, res: Response): Promise<void> =
               type: chapter.type,
               title: chapter.title,
               content: chapter.content,
+              video: chapter.video,
             },
           });
         }
@@ -264,15 +271,14 @@ export const getUploadVideoUrl = async (req: Request, res: Response): Promise<vo
     const s3Key = `videos/${uniqueId}/${fileName}`;
 
     const s3Params = {
-      Bucket: process.env.S3_BUCKET_NAME || '',
+      Bucket: process.env.S3_BUCKET_NAME!,
       Key: s3Key,
-      // Expires: 60,
-      // ContentType: fileType,
-      Expires: 300, // URL 만료 시간 (초)
-      ACL: 'public-read',
+      ContentType: fileType,
     };
 
-    const uploadUrl = `s3.getSignedUrl('putObject', s3Params)`;
+    const command = new PutObjectCommand(s3Params);
+    const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 300 });
+
     const videoUrl = `${process.env.CLOUDFRONT_DOMAIN}/videos/${uniqueId}/${fileName}`;
 
     res.json({

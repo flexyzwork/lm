@@ -35,8 +35,6 @@ const Courses = () => {
   }, [courses, searchTerm, selectedCategory]);
 
   const handleGoToCourse = (course: Course) => {
-    console.log('Navigating to course:', course.courseId);
-    console.log('Course details:', course);
     if (course?.sections && course?.sections?.length > 0 && course?.sections[0].chapters?.length > 0) {
       const firstChapter = course.sections[0].chapters[0];
       router.push(`/user/courses/${course.courseId}/chapters/${firstChapter.chapterId}`, {

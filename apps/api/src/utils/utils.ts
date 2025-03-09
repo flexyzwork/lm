@@ -136,17 +136,22 @@ export const mergeChapters = (
   return Array.from(existingChaptersMap.values());
 };
 
-export const calculateOverallProgress = (sections: any[]): number => {
-  const totalChapters = sections.reduce(
-    (acc: number, section: any) => acc + section.chapters.length,
-    0
-  );
+export const calculateOverallProgress = (sections: any) => {
+  if (!Array.isArray(sections) || sections.length === 0) {
+    return 0; // Ensure sections is always an array and not undefined
+  }
 
-  const completedChapters = sections.reduce(
-    (acc: number, section: any) =>
-      acc + section.chapters.filter((chapter: any) => chapter.completed).length,
-    0
-  );
+  const totalChapters = sections.reduce((sum, section) => {
+    if (!section || !Array.isArray(section.chapters)) return sum;
+    return sum + section.chapters.length;
+  }, 0);
 
-  return totalChapters > 0 ? (completedChapters / totalChapters) * 100 : 0;
+  if (totalChapters === 0) return 0;
+
+  const completedChapters = sections.reduce((sum, section) => {
+    if (!section || !Array.isArray(section.chapters)) return sum;
+    return sum + section.chapters.filter((chapter: any) => chapter?.completed).length;
+  }, 0);
+
+  return (completedChapters / totalChapters) * 100;
 };

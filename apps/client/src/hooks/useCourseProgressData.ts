@@ -31,32 +31,35 @@ export const useCourseProgressData = () => {
   const currentChapter = currentSection?.chapters.find((c) => c.chapterId === chapterId);
 
   const isChapterCompleted = () => {
-    if (!currentSection || !currentChapter || !userProgress?.sections) return false;
+    if (!currentSection || !currentChapter || !Array.isArray(userProgress?.sections)) return false;
 
-    const section = userProgress.sections.find((s) => s.sectionId === currentSection.sectionId);
+    const sections = userProgress.sections;
+
+    const section = sections.find((s) => s.sectionId === currentSection.sectionId);
     return section?.chapters.some((c) => c.chapterId === currentChapter.chapterId && c.completed) ?? false;
   };
 
   const updateChapterProgress = (sectionId: string, chapterId: string, completed: boolean) => {
     if (!user) return;
 
-    const updatedSections = [
-      {
-        sectionId,
-        chapters: [
-          {
-            chapterId,
-            completed,
-          },
-        ],
-      },
-    ];
+    const updatedSections = Array.isArray(userProgress?.sections) ? userProgress.sections : [];
 
     updateProgress({
       userId: user.userId,
       courseId: (courseId as string) ?? '',
       progressData: {
-        sections: updatedSections,
+        sections: [
+          ...updatedSections,
+          {
+            sectionId,
+            chapters: [
+              {
+                chapterId,
+                completed,
+              },
+            ],
+          },
+        ],
       },
     });
   };

@@ -87,7 +87,8 @@ const Section = ({
   updateChapterProgress: (sectionId: string, chapterId: string, completed: boolean) => void;
 }) => {
   const completedChapters =
-    (Array.isArray(sectionProgress?.chapters) ? sectionProgress.chapters : []).filter((c: any) => c.completed).length || 0;
+    (Array.isArray(sectionProgress?.chapters) ? sectionProgress.chapters : []).filter((c: any) => c.completed).length ||
+    0;
   const totalChapters = Array.isArray(section?.chapters) ? section.chapters.length : 0;
   const isExpanded = expandedSections.includes(section.sectionTitle);
 
@@ -223,7 +224,9 @@ const Chapter = ({
   handleChapterClick: (sectionId: string, chapterId: string) => void;
   updateChapterProgress: (sectionId: string, chapterId: string, completed: boolean) => void;
 }) => {
-  const chapterProgress = (Array.isArray(sectionProgress?.chapters) ? sectionProgress.chapters : []).find((c: any) => c.chapterId === chapter.chapterId);
+  const chapterProgress = (Array.isArray(sectionProgress?.chapters) ? sectionProgress.chapters : []).find(
+    (c: any) => c.chapterId === chapter.chapterId
+  );
   const isCompleted = chapterProgress?.completed;
   const isCurrentChapter = chapterId === chapter.chapterId;
 
