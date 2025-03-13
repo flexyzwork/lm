@@ -22,6 +22,7 @@ import { LoggerModule } from './logger/logger.module';
       store: redisStore,
       host: process.env.REDIS_HOST,
       port: process.env.REDIS_PORT,
+      password: process.env.REDIS_PASSWORD,
     }),
     EnhancerModule,
     DatabaseModule,

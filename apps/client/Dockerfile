@@ -3,23 +3,28 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 RUN npm install -g pnpm@10.4.1
 
+# 환경 변수 전달
+ARG NEXT_PUBLIC_API_BASE_URL
+ARG NEXT_PUBLIC_LOCAL_URL
+ARG NEXT_PUBLIC_STRIPE_PUBLIC_KEY
+
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_LOCAL_URL=$NEXT_PUBLIC_LOCAL_URL
+ENV NEXT_PUBLIC_STRIPE_PUBLIC_KEY=$NEXT_PUBLIC_STRIPE_PUBLIC_KEY
+
 COPY package*.json pnpm-lock.yaml ./
 RUN pnpm install 
-# --no-frozen-lockfile
-
-# # ✅ Next.js 빌드 오류 방지 (pnpm install 재실행)
-# RUN pnpm rebuild && pnpm install
 
 COPY . .
 RUN pnpm build || (echo "Build failed" && exit 1)
 
-# 2. 실행 환경 (최소한의 파일만 유지)
+# 2. 실행 환경
 FROM node:20-alpine AS runtime
 RUN apk update && apk add curl
 
 WORKDIR /app
 
-# Next.js standalone 실행 파일만 복사 (node_modules 불필요)
+# Next.js standalone 실행 파일만 복사
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
@@ -27,8 +32,5 @@ COPY --from=builder /app/public ./public
 # 불필요한 캐시 제거
 RUN rm -rf .next/cache
 
-# 실행 포트 설정
 EXPOSE 3000
-
-# Next.js 실행
 CMD ["node", "server.js"]
