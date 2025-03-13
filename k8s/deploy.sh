@@ -4,11 +4,11 @@ set -e
 
 NAMESPACE="lm-app"
 
-echo "Creating namespace if not exists..."
-kubectl get namespace $NAMESPACE || kubectl create namespace $NAMESPACE
+# echo "Creating namespace if not exists..."
+# kubectl get namespace $NAMESPACE || kubectl create namespace $NAMESPACE
 
-echo "Applying secrets..."
-kubectl apply -f k8s/secrets.yaml
+# echo "Applying secrets..."
+# kubectl apply -f k8s/secrets.yaml
 
 echo "Deploying services..."
 kubectl apply -f k8s/deployment.yaml
