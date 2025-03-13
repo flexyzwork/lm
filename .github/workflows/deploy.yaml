@@ -100,3 +100,7 @@ jobs:
       - name: Deploy to OKE
         run: |
           bash k8s/deploy.sh
+
+      - name: Apply Ingress Configuration
+        run: |
+          kubectl apply -f k8s/ingress.yaml
