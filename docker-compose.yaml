@@ -8,9 +8,9 @@ services:
       - app-network
 
   backend:
-    build:
-      context: ./apps/api
-      dockerfile: Dockerfile
+    # build:
+    #   context: ./apps/api
+    #   dockerfile: Dockerfile
     image: kix.ocir.io/axunckhvyv1v/lm-backend:latest
     restart: always
     ports:
@@ -24,9 +24,9 @@ services:
       - app-network
 
   auth:
-    build:
-      context: .
-      dockerfile: ./apps/auth/Dockerfile
+    # build:
+    #   context: .
+    #   dockerfile: ./apps/auth/Dockerfile
     image: kix.ocir.io/axunckhvyv1v/lm-auth:latest
     restart: always
     ports:
@@ -40,9 +40,9 @@ services:
       - app-network
 
   frontend:
-    build:
-      context: ./apps/client
-      dockerfile: Dockerfile
+    # build:
+    #   context: ./apps/client
+    #   dockerfile: Dockerfile
     image: kix.ocir.io/axunckhvyv1v/lm-frontend:latest
     restart: always
     ports:
