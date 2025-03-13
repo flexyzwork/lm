@@ -4,7 +4,7 @@ metadata:
   name: backend
   namespace: lm-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: backend
@@ -23,13 +23,13 @@ spec:
           envFrom:
             - secretRef:
                 name: app-secrets
-          resources:
-            requests:
-              cpu: "500m"
-              memory: "512Mi"
-            limits:
-              cpu: "1"
-              memory: "1Gi"
+          # resources:
+          #   requests:
+          #     cpu: "500m"
+          #     memory: "512Mi"
+          #   limits:
+          #     cpu: "1"
+          #     memory: "1Gi"
 ---
 apiVersion: v1
 kind: Service
@@ -52,7 +52,7 @@ metadata:
   name: frontend
   namespace: lm-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: frontend
@@ -71,13 +71,13 @@ spec:
           envFrom:
             - secretRef:
                 name: app-secrets
-          resources:
-            requests:
-              cpu: "250m"
-              memory: "256Mi"
-            limits:
-              cpu: "500m"
-              memory: "512Mi"
+          # resources:
+          #   requests:
+          #     cpu: "250m"
+          #     memory: "256Mi"
+          #   limits:
+          #     cpu: "500m"
+          #     memory: "512Mi"
 ---
 apiVersion: v1
 kind: Service
@@ -99,7 +99,7 @@ metadata:
   name: auth
   namespace: lm-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: auth
@@ -118,13 +118,13 @@ spec:
           envFrom:
             - secretRef:
                 name: app-secrets
-          resources:
-            requests:
-              cpu: "250m"
-              memory: "256Mi"
-            limits:
-              cpu: "500m"
-              memory: "512Mi"
+          # resources:
+          #   requests:
+          #     cpu: "250m"
+          #     memory: "256Mi"
+          #   limits:
+          #     cpu: "500m"
+          #     memory: "512Mi"
 ---
 apiVersion: v1
 kind: Service

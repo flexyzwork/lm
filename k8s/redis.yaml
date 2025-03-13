@@ -32,13 +32,13 @@ spec:
           volumeMounts:
             - mountPath: /data
               name: redis-storage
-          command: ["redis-server", "--appendonly", "yes", "--requirepass", "$(REDIS_PASSWORD)"]
+          command: ['redis-server', '--appendonly', 'yes', '--requirepass', '$(REDIS_PASSWORD)']
           env:
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: redis-secret
-                  key: redis-password
+                  name: redis-secrets
+                  key: REDIS_PASSWORD
       volumes:
         - name: redis-storage
           persistentVolumeClaim:

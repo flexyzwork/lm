@@ -77,18 +77,18 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
 
-      # - name: Apply Kubernetes Secrets (for OCIR)
-      #   run: |
-      #     kubectl create secret docker-registry ocir-secret \
-      #       --docker-server=${{ secrets.OCI_REGION }}.ocir.io \
-      #       --docker-username="${{ secrets.OCI_USERNAME }}" \
-      #       --docker-password="${{ secrets.OCI_AUTH_TOKEN }}" \
-      #       --docker-email="master@code-lab.kr" --dry-run=client -o yaml | kubectl apply -f -
+      - name: Create .env file from GitHub Secrets
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Create Kubernetes Secret
+        run: |
+          kubectl delete secret app-secrets -n lm-app --ignore-not-found
+          kubectl create secret generic app-secrets --from-env-file=.env -n lm-app
 
       - name: Apply K8s Secrets
         env:
           OCI_REGISTRY_AUTH_BASE64: ${{ secrets.OCI_REGISTRY_AUTH_BASE64 }}
-          BASE64_ENCODED_DB_URL: ${{ secrets.BASE64_ENCODED_DB_URL }}
           BASE64_ENCODED_REDIS_PASSWORD: ${{ secrets.BASE64_ENCODED_REDIS_PASSWORD }}
         run: |
           envsubst < k8s/secrets.yaml > k8s/secrets-applied.yaml
