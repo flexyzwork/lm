@@ -1,0 +1,88 @@
+name: Build & Deploy to OCIR
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Create .env file for frontend
+        run: |
+          cat <<EOF > ./apps/client/.env
+          NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+          NEXT_PUBLIC_LOCAL_URL=${{ secrets.NEXT_PUBLIC_LOCAL_URL }}
+          NEXT_PUBLIC_STRIPE_PUBLIC_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }}
+          EOF
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to OCI Container Registry (OCIR)
+        run: |
+          echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login -u "${{ secrets.OCI_USERNAME }}" --password-stdin kix.ocir.io
+
+      - name: Build & Push Multi-Arch Images
+        run: |
+          IMAGE_PREFIX="kix.ocir.io/axunckhvyv1v/lm"
+
+          declare -A SERVICES=(
+            ["redis"]="redis:6.2-alpine"
+            ["backend"]="apps/api"
+            ["auth"]="apps/auth"
+            ["frontend"]="apps/client"
+          )
+
+          for SERVICE in "${!SERVICES[@]}"; do
+            CONTEXT_PATH="${SERVICES[$SERVICE]}"
+            DOCKERFILE_PATH="$CONTEXT_PATH/Dockerfile"
+
+            if [[ $SERVICE == "redis" ]]; then
+              docker pull $CONTEXT_PATH
+              docker tag $CONTEXT_PATH $IMAGE_PREFIX-$SERVICE:latest
+              docker push $IMAGE_PREFIX-$SERVICE:latest
+            else
+              if [[ $SERVICE == "auth" ]]; then
+                CONTEXT_PATH="." 
+
+              fi
+              docker buildx build \
+                --platform linux/amd64,linux/arm64,linux/arm64/v8 \
+                --push \
+                -t $IMAGE_PREFIX-$SERVICE:latest \
+                -f $DOCKERFILE_PATH $CONTEXT_PATH
+            fi
+          done
+
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: build-and-push
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
+
+  #     - name: Configure kubectl
+  #       run: |
+  #         mkdir -p ~/.kube
+  #         echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+
+  #     - name: Apply Kubernetes Secrets (for OCIR)
+  #       run: |
+  #         kubectl create secret docker-registry ocir-secret \
+  #           --docker-server=${{ secrets.OCI_REGION }}.ocir.io \
+  #           --docker-username="${{ secrets.OCI_USERNAME }}" \
+  #           --docker-password="${{ secrets.OCI_AUTH_TOKEN }}" \
+  #           --docker-email="master@code-lab.kr" --dry-run=client -o yaml | kubectl apply -f -
+
+  #     - name: Deploy to OKE
+  #       run: |
+  #         bash k8s/deploy.sh

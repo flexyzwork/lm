@@ -6,15 +6,18 @@ WORKDIR /app
 RUN npm install -g pnpm@10.4.1
 
 # 3. 종속성 설치 (캐시 활용)
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY package*.json pnpm-lock.yaml ./
+COPY prisma/schema.prisma ./prisma/
+# RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
+
 
 # 4. 소스 코드 복사 및 빌드
 COPY . .
 RUN pnpm build
 
 # 5. devDependencies 제거 (프로덕션 종속성만 유지)
-RUN pnpm prune --prod
+# RUN pnpm prune --prod
 
 # 6. 실행 환경 (초경량 Node.js)
 FROM node:20-alpine AS runtime
@@ -26,6 +29,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/pnpm-lock.yaml ./
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/prisma ./prisma
 
 # 8. 불필요한 파일 제거
 RUN rm -rf /app/node_modules/.cache /app/.git /app/tmp /app/.npm

@@ -1,0 +1,19 @@
+{
+  "name": "@infra/pulumi-oke",
+  "main": "src/index.ts",
+  "scripts": {
+    "make": "pulumi up",
+    "down": "pulumi destroy"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "@pulumi/kubernetes": "^4.21.1",
+    "@pulumi/oci": "^2.25.0",
+    "@pulumi/pulumi": "^3.155.0",
+    "dotenv": "^16.4.7"
+  },
+  "packageManager": "pnpm@10.6.2"
+}

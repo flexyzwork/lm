@@ -18,15 +18,15 @@
     "db:m": "pnpm db migrate",
     "db:s": "pnpm db seed",
     "db:p": "pnpm db push",
-    "pl": "pnpm --filter @infra/pulumi-aws",
-    "pl:u": "pnpm pl make",
-    "pl:d": "pnpm pl down",
     "dev": "turbo run dev",
     "docker": "pnpm --filter @packages/docker",
     "format": "prettier --write .",
     "lint": "turbo run lint",
     "deploy": "turbo run deploy",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "infra": "pnpm --filter @infra/pulumi-oke",
+    "infra:up": "pnpm run infra make",
+    "infra:destroy": "pnpm run infra down"
   },
   "engines": {
     "node": ">=18"

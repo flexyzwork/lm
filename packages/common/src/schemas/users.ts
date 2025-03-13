@@ -25,9 +25,9 @@ export const users = pgTable('User', {
 // ✅ Zod 스키마 자동 생성 (중복 제거)
 export const userSchemas = {
   Select: createSelectSchema(users).openapi({ title: 'UserResponse' }),
-  Insert: createInsertSchema(users).omit({ userId: true, createdAt: true }).openapi({ title: 'CreateUser' }),
+  Insert: createInsertSchema(users).openapi({ title: 'CreateUser' }),
   Update: createInsertSchema(users)
-    .omit({ userId: true, createdAt: true, provider: true, providerId: true, email: true })
+    // .omit({ userId: true, createdAt: true, provider: true, providerId: true, email: true })
     .partial()
     .openapi({ title: 'UpdateUser' }),
   Login: z

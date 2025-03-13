@@ -3,8 +3,12 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 RUN npm install -g pnpm@10.4.1
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY package*.json pnpm-lock.yaml ./
+RUN pnpm install 
+# --no-frozen-lockfile
+
+# # ✅ Next.js 빌드 오류 방지 (pnpm install 재실행)
+# RUN pnpm rebuild && pnpm install
 
 COPY . .
 RUN pnpm build || (echo "Build failed" && exit 1)
