@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lm-prod
+  namespace: lm-app
+  labels:
+    app.kubernetes.io/name: frontend
+  annotations:
+    acme.cert-manager.io/http01-ingress-class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: 999m
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: learn.flexyz.work
+      http:
+        paths:
+          - path: /
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 3000
+            pathType: Prefix
+  tls:
+    - hosts:
+        - learn.flexyz.work
+      secretName: lm-prod-tls
