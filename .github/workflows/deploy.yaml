@@ -52,7 +52,7 @@ jobs:
   #             docker push $IMAGE_PREFIX-$SERVICE:latest
   #           else
   #             if [[ $SERVICE == "auth" ]]; then
-  #               CONTEXT_PATH="." 
+  #               CONTEXT_PATH="."
 
   #             fi
   #             docker buildx build \
@@ -77,6 +77,14 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
 
+      - name: Apply K8s Secrets
+        env:
+          OCI_REGISTRY_AUTH_BASE64: ${{ secrets.OCI_REGISTRY_AUTH_BASE64 }}
+          BASE64_ENCODED_REDIS_PASSWORD: ${{ secrets.BASE64_ENCODED_REDIS_PASSWORD }}
+        run: |
+          envsubst < k8s/secrets.yaml > k8s/secrets-applied.yaml
+          kubectl apply -f k8s/secrets-applied.yaml
+
       - name: Create .env file from GitHub Secrets
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
@@ -85,15 +93,7 @@ jobs:
         run: |
           kubectl delete secret app-secrets -n lm-app --ignore-not-found
           kubectl create secret generic app-secrets --from-env-file=.env -n lm-app
-
-      - name: Apply K8s Secrets
-        env:
-          OCI_REGISTRY_AUTH_BASE64: ${{ secrets.OCI_REGISTRY_AUTH_BASE64 }}
-          BASE64_ENCODED_REDIS_PASSWORD: ${{ secrets.BASE64_ENCODED_REDIS_PASSWORD }}
-        run: |
-          envsubst < k8s/secrets.yaml > k8s/secrets-applied.yaml
-          kubectl apply -f k8s/secrets-applied.yaml 
-
+            
       - name: Deploy to OKE
         run: |
           bash k8s/deploy.sh
