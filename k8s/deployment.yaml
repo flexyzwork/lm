@@ -118,12 +118,12 @@ spec:
           envFrom:
             - secretRef:
                 name: app-secrets
-          env:
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: redis-secret
-                  key: REDIS_PASSWORD
+          # env:
+          #   - name: REDIS_PASSWORD
+          #     valueFrom:
+          #       secretKeyRef:
+          #         name: redis-secret
+          #         key: REDIS_PASSWORD
           # resources:
           #   requests:
           #     cpu: "250m"

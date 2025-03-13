@@ -22,9 +22,9 @@ services:
     image: redis:6.2-alpine
     ports:
       - '6379:6379'
-    environment:
-      REDIS_PASSWORD: my_secure_password 
-    command: redis-server --requirepass my_secure_password 
+    # environment:
+    #   REDIS_PASSWORD: my_secure_password
+    # command: redis-server --requirepass my_secure_password
     networks:
       - app-network
 

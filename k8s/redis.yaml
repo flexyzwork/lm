@@ -9,7 +9,6 @@ spec:
   resources:
     requests:
       storage: 1Gi
-
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -34,13 +33,13 @@ spec:
           volumeMounts:
             - mountPath: /data
               name: redis-storage
-          command: ['redis-server', '--appendonly', 'yes', '--requirepass', '$(REDIS_PASSWORD)']
-          env:
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: redis-secret
-                  key: REDIS_PASSWORD
+          # command: ['redis-server', '--appendonly', 'yes', '--requirepass', '$(REDIS_PASSWORD)']
+          # env:
+          #   - name: REDIS_PASSWORD
+          #     valueFrom:
+          #       secretKeyRef:
+          #         name: redis-secret
+          #         key: REDIS_PASSWORD
       volumes:
         - name: redis-storage
           persistentVolumeClaim:
@@ -60,3 +59,23 @@ spec:
     - protocol: TCP
       port: 6379
       targetPort: 6379
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-redis-access
+  namespace: lm-app
+spec:
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: backend # backend만 Redis 접근 가능하게 설정
+      ports:
+        - protocol: TCP
+          port: 6379

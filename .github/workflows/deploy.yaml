@@ -53,7 +53,6 @@ jobs:
             else
               if [[ $SERVICE == "auth" ]]; then
                 CONTEXT_PATH="."
-
               fi
               docker buildx build \
                 --cache-from=type=local,src=/tmp/.buildx-cache \
@@ -83,7 +82,7 @@ jobs:
       - name: Apply K8s Secrets
         env:
           OCI_REGISTRY_AUTH_BASE64: ${{ secrets.OCI_REGISTRY_AUTH_BASE64 }}
-          BASE64_ENCODED_REDIS_PASSWORD: ${{ secrets.BASE64_ENCODED_REDIS_PASSWORD }}
+          # BASE64_ENCODED_REDIS_PASSWORD: ${{ secrets.BASE64_ENCODED_REDIS_PASSWORD }}
         run: |
           envsubst < k8s/secrets.yaml > k8s/secrets-applied.yaml
           kubectl apply -f k8s/secrets-applied.yaml
