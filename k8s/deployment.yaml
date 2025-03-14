@@ -23,6 +23,10 @@ spec:
           envFrom:
             - secretRef:
                 name: app-secrets
+          volumeMounts:
+            - name: rds-cert-volume
+              mountPath: /etc/ssl/certs/global-bundle.pem
+              subPath: global-bundle.pem
           # resources:
           #   requests:
           #     cpu: "500m"
@@ -30,6 +34,13 @@ spec:
           #   limits:
           #     cpu: "1"
           #     memory: "1Gi"
+      volumes:
+        - name: rds-cert-volume
+          configMap:
+            name: rds-cert
+            items:
+              - key: global-bundle.pem
+                path: global-bundle.pem
 ---
 apiVersion: v1
 kind: Service
@@ -118,6 +129,10 @@ spec:
           envFrom:
             - secretRef:
                 name: app-secrets
+          volumeMounts:
+            - name: rds-cert-volume
+              mountPath: /etc/ssl/certs/global-bundle.pem
+              subPath: global-bundle.pem
           # env:
           #   - name: REDIS_PASSWORD
           #     valueFrom:
@@ -131,6 +146,13 @@ spec:
           #   limits:
           #     cpu: "500m"
           #     memory: "512Mi"
+      volumes:
+        - name: rds-cert-volume
+          configMap:
+            name: rds-cert
+            items:
+              - key: global-bundle.pem
+                path: global-bundle.pem
 ---
 apiVersion: v1
 kind: Service

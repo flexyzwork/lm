@@ -96,6 +96,11 @@ jobs:
           kubectl delete secret app-secrets -n lm-app --ignore-not-found
           kubectl create secret generic app-secrets --from-env-file=.env -n lm-app
 
+      - name: Apply ConfigMap
+        run: |
+          kubectl apply -f k8s/configmap.yaml
+          kubectl get configmap -n lm-app
+
       - name: Deploy to OKE
         run: |
           bash k8s/deploy.sh

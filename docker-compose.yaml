@@ -20,6 +20,7 @@ services:
     env_file:
       - ./.envs/.env
     volumes:
+      - ./global-bundle.pem:/etc/ssl/certs/global-bundle.pem
       - backend_data:/app/data
       - /app/node_modules
     networks:
@@ -36,6 +37,7 @@ services:
     env_file:
       - ./.envs/.env
     volumes:
+      - ./global-bundle.pem:/etc/ssl/certs/global-bundle.pem
       - auth_data:/app/data
       - /app/node_modules
     networks:
