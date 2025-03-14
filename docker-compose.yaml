@@ -1,11 +1,11 @@
 services:
   redis:
-    # image: kix.ocir.io/axunckhvyv1v/lm-redis:latest
-    image: redis:6.2-alpine
+    image: kix.ocir.io/axunckhvyv1v/lm-redis:latest
+    # image: redis:6.2-alpine
     ports:
       - '6379:6379'
-    env_file:
-      - ./.envs/.env
+    # env_file:
+    #   - ./.envs/.env
     networks:
       - app-network
 
@@ -20,7 +20,7 @@ services:
     env_file:
       - ./.envs/.env
     volumes:
-      - ./global-bundle.pem:/etc/ssl/certs/global-bundle.pem
+      # - ./global-bundle.pem:/etc/ssl/certs/global-bundle.pem
       - backend_data:/app/data
       - /app/node_modules
     networks:
@@ -37,7 +37,7 @@ services:
     env_file:
       - ./.envs/.env
     volumes:
-      - ./global-bundle.pem:/etc/ssl/certs/global-bundle.pem
+      # - ./global-bundle.pem:/etc/ssl/certs/global-bundle.pem
       - auth_data:/app/data
       - /app/node_modules
     networks:
