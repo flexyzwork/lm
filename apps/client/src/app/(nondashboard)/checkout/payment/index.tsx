@@ -26,10 +26,8 @@ const PaymentPageContent = () => {
       return;
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_LOCAL_URL
-      ? `${process.env.NEXT_PUBLIC_LOCAL_URL}`
-      : process.env.NEXT_PUBLIC_DOMAIN_URL
-        ? `${process.env.NEXT_PUBLIC_DOMAIN_URL}`
+    const baseUrl = process.env.NEXT_PUBLIC_URL
+      ? `${process.env.NEXT_PUBLIC_URL}`
         : undefined;
 
     const result = await stripe.confirmPayment({

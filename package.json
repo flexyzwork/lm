@@ -31,7 +31,6 @@
   },
   "pnpm": {
     "ignoredBuiltDependencies": [
-      "@clerk/shared",
       "@nestjs/core",
       "@prisma/client",
       "@pulumi/docker",
@@ -49,6 +48,7 @@
     ],
     "onlyBuiltDependencies": [
       "@prisma/engines",
+      "@pulumi/kubernetes",
       "bcrypt",
       "browser-tabs-lock",
       "canvas",

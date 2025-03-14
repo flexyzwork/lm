@@ -9,9 +9,9 @@ import { useCreateStripePaymentIntentMutation } from "@/state/api";
 import { useCurrentCourse } from "@/hooks/useCurrentCourse";
 import Loading from "@/components/Loading";
 
-if (!process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY) {
-  throw new Error("NEXT_PUBLIC_STRIPE_PUBLIC_KEY is not set");
-}
+// if (!process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY) {
+//   throw new Error("NEXT_PUBLIC_STRIPE_PUBLIC_KEY is not set");
+// }
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 
