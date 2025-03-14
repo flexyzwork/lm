@@ -82,7 +82,6 @@ jobs:
       - name: Apply K8s Secrets
         env:
           OCI_REGISTRY_AUTH_BASE64: ${{ secrets.OCI_REGISTRY_AUTH_BASE64 }}
-          # BASE64_ENCODED_REDIS_PASSWORD: ${{ secrets.BASE64_ENCODED_REDIS_PASSWORD }}
         run: |
           envsubst < k8s/secrets.yaml > k8s/secrets-applied.yaml
           kubectl apply -f k8s/secrets-applied.yaml
@@ -96,15 +95,6 @@ jobs:
           kubectl delete secret app-secrets -n lm-app --ignore-not-found
           kubectl create secret generic app-secrets --from-env-file=.env -n lm-app
 
-      - name: Apply ConfigMap
-        run: |
-          kubectl apply -f k8s/configmap.yaml
-          kubectl get configmap -n lm-app
-
       - name: Deploy to OKE
         run: |
           bash k8s/deploy.sh
-
-      - name: Apply Ingress Configuration
-        run: |
-          kubectl apply -f k8s/ingress.yaml

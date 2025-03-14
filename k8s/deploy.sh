@@ -4,11 +4,9 @@ set -e
 
 NAMESPACE="lm-app"
 
-# echo "Creating namespace if not exists..."
-# kubectl get namespace $NAMESPACE || kubectl create namespace $NAMESPACE
-
-# echo "Applying secrets..."
-# kubectl apply -f k8s/secrets.yaml
+echo "Apply ConfigMap"
+kubectl apply -f k8s/configmap.yaml
+kubectl get configmap -n lm-app
 
 echo "Deploying services..."
 kubectl apply -f k8s/deployment.yaml
@@ -26,5 +24,8 @@ if [ $? -ne 0 ]; then
   kubectl rollout undo deployment/frontend -n $NAMESPACE
   exit 1
 fi
+
+echo "Apply Ingress Configuration"
+kubectl apply -f k8s/ingress.yaml
 
 echo "Deployment completed successfully!"
