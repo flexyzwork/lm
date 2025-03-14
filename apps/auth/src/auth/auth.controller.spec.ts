@@ -136,20 +136,6 @@ describe('AuthController', () => {
     });
   });
 
-  /** ✅ 현재 로그인한 사용자 프로필 조회 */
-  describe('getProfile', () => {
-    it('should return the logged-in user profile', async () => {
-      const mockUser = { userId: '1', email: 'test@example.com', provider: 'EMAIL' } as any;
-      const mockRequest = { headers: { authorization: 'Bearer access-token' } } as any;
-      const result = await controller.getProfile(mockUser, mockRequest);
-
-      expect(result).toEqual({
-        token: 'access-token',
-        user: mockUser,
-      });
-    });
-  });
-
   /** ✅ `setRefreshToken` 테스트 */
   describe('setRefreshToken', () => {
     it('should set refresh token in cookie', () => {

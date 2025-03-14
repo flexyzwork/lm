@@ -132,7 +132,11 @@ export class AuthController extends BaseController {
     @UserInfo() user: Express.User,
     @Res({ passthrough: true }) res: express.Response // passthrough 옵션 사용
   ) {
-    await this.authService.logout(user?.userId);
+    if (typeof user?.userId === 'string') {
+      await this.authService.logout(user.userId);
+    } else {
+      throw new UnauthorizedException('Invalid user ID');
+    }
     res.setHeader('Set-Cookie', this.authService.getCookieForLogOut());
     return { message: 'Logged out successfully' };
   }
@@ -165,9 +169,9 @@ export class AuthController extends BaseController {
     requestBody: null,
     responseSchema: authResponseSchema,
   })
-  async updateProfile(@UserInfo() user: Express.User, @Body() body: UpdateUserDto) {
+  async updateProfile(@UserInfo() user: Express.User & { userId: string }, @Body() body: UpdateUserDto) {
     this.validateUserExistence(user);
-    const updatedUser = await this.authService.updateProfile(user.userId, body);
+    const updatedUser = await this.authService.updateProfile(user.userId as string, body);
     return updatedUser;
   }
 
