@@ -46,3 +46,5 @@ infra/pulumi-aws/.acme.sh.tar.gz
 .turbo
 
 .logs
+
+.pnpm-store
