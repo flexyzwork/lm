@@ -3,15 +3,18 @@
 set -e
 
 NAMESPACE="lm-app"
+DEPLOY_TIMEOUT="180s"
 
 echo "Deploying services..."
-kubectl apply -f k8s/deployment.yaml
-kubectl apply -f k8s/redis.yaml
+kubectl apply -f k8s/deployment.yaml &
+kubectl apply -f k8s/redis.yaml &
+wait
 
-echo "Waiting for deployment to complete..."
-kubectl rollout status deployment/backend -n $NAMESPACE
-kubectl rollout status deployment/auth -n $NAMESPACE
-kubectl rollout status deployment/frontend -n $NAMESPACE
+echo "Waiting for deployments to be ready..."
+kubectl wait --for=condition=available --timeout=$DEPLOY_TIMEOUT deployment/backend -n $NAMESPACE &
+kubectl wait --for=condition=available --timeout=$DEPLOY_TIMEOUT deployment/auth -n $NAMESPACE &
+kubectl wait --for=condition=available --timeout=$DEPLOY_TIMEOUT deployment/frontend -n $NAMESPACE &
+wait
 
 if [ $? -ne 0 ]; then
   echo "Deployment failed, rolling back..."
