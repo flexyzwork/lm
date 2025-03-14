@@ -34,6 +34,6 @@ async function bootstrap() {
   setupSwagger(app);
 
   await app.listen(4000);
-  console.log('🚀 Server running at http://localhost:4000/swagger');
+  console.log('🚀 Server running at http://localhost:4000/auth/docs');
 }
 bootstrap();

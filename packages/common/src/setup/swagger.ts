@@ -20,5 +20,5 @@ export function setupSwagger(app: INestApplication) {
   Object.assign(document.components.schemas, openApiSchemas as Record<string, unknown>);
 
   // ✅ Swagger UI 적용
-  SwaggerModule.setup('swagger', app, document);
+  SwaggerModule.setup('auth/docs', app, document);
 }

@@ -1,30 +1,22 @@
-"use client";
+'use client';
 
-import { CustomFormField } from "@/components/CustomFormField";
-import Header from "@/components/Header";
-import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
-import { courseSchema } from "@/lib/schemas";
-import {
-  centsToDollars,
-  createCourseFormData,
-  uploadAllVideos,
-} from "@/lib/utils";
-import { openSectionModal, setSections } from "@/state";
-import {
-  useGetCourseQuery,
-  useUpdateCourseMutation,
-  useGetUploadVideoUrlMutation,
-} from "@/state/api";
-import { useAppDispatch, useAppSelector } from "@/state/redux";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Plus } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import DroppableComponent from "./Droppable";
-import ChapterModal from "./ChapterModal";
-import SectionModal from "./SectionModal";
+import { CustomFormField } from '@/components/CustomFormField';
+import Header from '@/components/Header';
+import { Button } from '@/components/ui/button';
+import { Form } from '@/components/ui/form';
+import { courseSchema } from '@/lib/schemas';
+import { centsToDollars, createCourseFormData, uploadAllVideos } from '@/lib/utils';
+import { openSectionModal, setSections } from '@/state';
+import { useGetCourseQuery, useUpdateCourseMutation, useGetUploadVideoUrlMutation } from '@/state/api';
+import { useAppDispatch, useAppSelector } from '@/state/redux';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ArrowLeft, Plus } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import DroppableComponent from './Droppable';
+import ChapterModal from './ChapterModal';
+import SectionModal from './SectionModal';
 
 const CourseEditor = () => {
   const router = useRouter();
@@ -40,10 +32,10 @@ const CourseEditor = () => {
   const methods = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
     defaultValues: {
-      courseTitle: "",
-      courseDescription: "",
-      courseCategory: "",
-      coursePrice: "0",
+      courseTitle: '',
+      courseDescription: '',
+      courseCategory: '',
+      coursePrice: '0',
       courseStatus: false,
     },
   });
@@ -55,7 +47,7 @@ const CourseEditor = () => {
         courseDescription: course.description,
         courseCategory: course.category,
         coursePrice: centsToDollars(course.price),
-        courseStatus: course.status === "Published",
+        courseStatus: course.status === 'Published',
       });
       dispatch(setSections(course.sections || []));
     }
@@ -63,11 +55,7 @@ const CourseEditor = () => {
 
   const onSubmit = async (data: CourseFormData) => {
     try {
-      const updatedSections = await uploadAllVideos(
-        sections,
-        id,
-        getUploadVideoUrl
-      );
+      const updatedSections = await uploadAllVideos(sections, id, getUploadVideoUrl);
 
       const formData = createCourseFormData(data, updatedSections);
 
@@ -78,7 +66,7 @@ const CourseEditor = () => {
 
       refetch();
     } catch (error) {
-      console.error("Failed to update course:", error);
+      console.error('Failed to update course:', error);
     }
   };
 
@@ -87,7 +75,7 @@ const CourseEditor = () => {
       <div className="flex items-center gap-5 mb-5">
         <button
           className="flex items-center border border-customgreys-dirtyGrey rounded-lg p-2 gap-2 cursor-pointer hover:bg-customgreys-dirtyGrey hover:text-white-100 text-customgreys-dirtyGrey"
-          onClick={() => router.push("/teacher/courses", { scroll: false })}
+          onClick={() => router.push('/teacher/courses', { scroll: false })}
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Courses</span>
@@ -103,23 +91,16 @@ const CourseEditor = () => {
               <div className="flex items-center space-x-4">
                 <CustomFormField
                   name="courseStatus"
-                  label={methods.watch("courseStatus") ? "Published" : "Draft"}
+                  label={methods.watch('courseStatus') ? 'Published' : 'Draft'}
                   type="switch"
                   className="flex items-center space-x-2"
                   labelClassName={`text-sm font-medium ${
-                    methods.watch("courseStatus")
-                      ? "text-green-500"
-                      : "text-yellow-500"
+                    methods.watch('courseStatus') ? 'text-green-500' : 'text-yellow-500'
                   }`}
                   inputClassName="data-[state=checked]:bg-green-500"
                 />
-                <Button
-                  type="submit"
-                  className="bg-primary-700 hover:bg-primary-600"
-                >
-                  {methods.watch("courseStatus")
-                    ? "Update Published Course"
-                    : "Save Draft"}
+                <Button type="submit" className="bg-primary-700 hover:bg-primary-600">
+                  {methods.watch('courseStatus') ? 'Update Published Course' : 'Save Draft'}
                 </Button>
               </div>
             }
@@ -151,12 +132,14 @@ const CourseEditor = () => {
                   type="select"
                   placeholder="Select category here"
                   options={[
-                    { value: "technology", label: "Technology" },
-                    { value: "science", label: "Science" },
-                    { value: "mathematics", label: "Mathematics" },
+                    { value: 'technology', label: 'Technology' },
+                    { value: 'science', label: 'Science' },
+                    { value: 'mathematics', label: 'Mathematics' },
+                    { value: 'devops', label: 'DevOps' },
+                    { value: 'container', label: 'Container' },
                     {
-                      value: "Artificial Intelligence",
-                      label: "Artificial Intelligence",
+                      value: 'Artificial Intelligence',
+                      label: 'Artificial Intelligence',
                     },
                   ]}
                   initialValue={course?.category}
@@ -174,23 +157,17 @@ const CourseEditor = () => {
 
             <div className="bg-customgreys-darkGrey mt-4 md:mt-0 p-4 rounded-lg basis-1/2">
               <div className="flex justify-between items-center mb-2">
-                <h2 className="text-2xl font-semibold text-secondary-foreground">
-                  Sections
-                </h2>
+                <h2 className="text-2xl font-semibold text-secondary-foreground">Sections</h2>
 
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() =>
-                    dispatch(openSectionModal({ sectionIndex: null }))
-                  }
+                  onClick={() => dispatch(openSectionModal({ sectionIndex: null }))}
                   className="border-none text-primary-700 group"
                 >
                   <Plus className="mr-1 h-4 w-4 text-primary-700 group-hover:white-100" />
-                  <span className="text-primary-700 group-hover:white-100">
-                    Add Section
-                  </span>
+                  <span className="text-primary-700 group-hover:white-100">Add Section</span>
                 </Button>
               </div>
 
