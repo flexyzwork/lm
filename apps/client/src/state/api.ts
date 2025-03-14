@@ -1,19 +1,16 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BaseQueryApi, FetchArgs } from "@reduxjs/toolkit/query";
-import { toast } from "sonner";
-import { useAuthStore } from "@/stores/authStore";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { BaseQueryApi, FetchArgs } from '@reduxjs/toolkit/query';
+import { toast } from 'sonner';
+import { useAuthStore } from '@/stores/authStore';
+import { refreshAccessToken } from '@/services/authService';
 
-const customBaseQuery = async (
-  args: string | FetchArgs,
-  api: BaseQueryApi,
-  extraOptions: any
-) => {
+const customBaseQuery = async (args: string | FetchArgs, api: BaseQueryApi, extraOptions: any) => {
   const baseQuery = fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || '/api',
     prepareHeaders: async (headers) => {
-      const token = useAuthStore.getState().accessToken
+      const token = useAuthStore.getState().accessToken;
       if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
+        headers.set('Authorization', `Bearer ${token}`);
       }
       return headers;
     },
@@ -24,15 +21,11 @@ const customBaseQuery = async (
 
     if (result.error) {
       const errorData = result.error.data;
-      const errorMessage =
-        errorData?.message ||
-        result.error.status.toString() ||
-        "An error occurred";
+      const errorMessage = errorData?.message || result.error.status.toString() || 'An error occurred';
       toast.error(`Error: ${errorMessage}`);
     }
 
-    const isMutationRequest =
-      (args as FetchArgs).method && (args as FetchArgs).method !== "GET";
+    const isMutationRequest = (args as FetchArgs).method && (args as FetchArgs).method !== 'GET';
 
     if (isMutationRequest) {
       const successMessage = result.data?.message;
@@ -41,26 +34,49 @@ const customBaseQuery = async (
 
     if (result.data) {
       result.data = result.data.data;
-    } else if (
-      result.error?.status === 204 ||
-      result.meta?.response?.status === 24
-    ) {
+    } else if (result.error?.status === 204 || result.meta?.response?.status === 24) {
       return { data: null };
     }
 
     return result;
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
-    return { error: { status: "FETCH_ERROR", error: errorMessage } };
+    return { error: { status: 'FETCH_ERROR', error: errorMessage } };
   }
 };
 
+const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
+  const { logout, setToken } = useAuthStore.getState();
+  let result = await customBaseQuery(args, api, extraOptions);
+
+  if (result.error && result.error.status === 401) {
+    console.warn('🔄 Access token expired, trying refresh...');
+
+    // ✅ Refresh Token 요청
+    const refreshResult = await refreshAccessToken();
+
+    if (refreshResult?.token) {
+      console.log('✅ Token refreshed successfully!');
+
+      // 새 액세스 토큰 저장
+      api.dispatch(setToken(refreshResult.token));
+
+      // ✅ 원래 요청 다시 시도
+      result = await customBaseQuery(args, api, extraOptions);
+    } else {
+      console.error('❌ Refresh failed, logging out...');
+      api.dispatch(logout());
+    }
+  }
+
+  return result;
+};
+
 export const api = createApi({
-  baseQuery: customBaseQuery,
-  reducerPath: "api",
-  tagTypes: ["Courses", "Users", "UserCourseProgress"],
+  baseQuery: baseQueryWithReauth,
+  reducerPath: 'api',
+  tagTypes: ['Courses', 'Users', 'UserCourseProgress'],
   endpoints: (build) => ({
     /* 
     ===============
@@ -70,10 +86,10 @@ export const api = createApi({
     updateUser: build.mutation<User, Partial<User> & { userId: string }>({
       query: ({ userId, ...updatedUser }) => ({
         url: `users/${userId}`,
-        method: "PATCH",
+        method: 'PATCH',
         body: updatedUser,
       }),
-      invalidatesTags: ["Users"],
+      invalidatesTags: ['Users'],
     }),
 
     /* 
@@ -83,49 +99,41 @@ export const api = createApi({
     */
     getCourses: build.query<Course[], { category?: string }>({
       query: ({ category }) => ({
-        url: "courses",
+        url: 'courses',
         params: { category },
       }),
-      providesTags: ["Courses"],
+      providesTags: ['Courses'],
     }),
 
     getCourse: build.query<Course, string>({
       query: (id) => `courses/${id}`,
-      providesTags: (result, error, id) => [{ type: "Courses", id }],
+      providesTags: (result, error, id) => [{ type: 'Courses', id }],
     }),
 
-    createCourse: build.mutation<
-      Course,
-      { teacherId: string; teacherName: string }
-    >({
+    createCourse: build.mutation<Course, { teacherId: string; teacherName: string }>({
       query: (body) => ({
         url: `courses`,
-        method: "POST",
+        method: 'POST',
         body,
       }),
-      invalidatesTags: ["Courses"],
+      invalidatesTags: ['Courses'],
     }),
 
-    updateCourse: build.mutation<
-      Course,
-      { courseId: string; formData: FormData }
-    >({
+    updateCourse: build.mutation<Course, { courseId: string; formData: FormData }>({
       query: ({ courseId, formData }) => ({
         url: `courses/${courseId}`,
-        method: "PUT",
+        method: 'PUT',
         body: formData,
       }),
-      invalidatesTags: (result, error, { courseId }) => [
-        { type: "Courses", id: courseId },
-      ],
+      invalidatesTags: (result, error, { courseId }) => [{ type: 'Courses', id: courseId }],
     }),
 
     deleteCourse: build.mutation<{ message: string }, string>({
       query: (courseId) => ({
         url: `courses/${courseId}`,
-        method: "DELETE",
+        method: 'DELETE',
       }),
-      invalidatesTags: ["Courses"],
+      invalidatesTags: ['Courses'],
     }),
 
     getUploadVideoUrl: build.mutation<
@@ -140,7 +148,7 @@ export const api = createApi({
     >({
       query: ({ courseId, sectionId, chapterId, fileName, fileType }) => ({
         url: `courses/${courseId}/sections/${sectionId}/chapters/${chapterId}/get-upload-url`,
-        method: "POST",
+        method: 'POST',
         body: { fileName, fileType },
       }),
     }),
@@ -153,20 +161,17 @@ export const api = createApi({
     getTransactions: build.query<Transaction[], string>({
       query: (userId) => `transactions?userId=${userId}`,
     }),
-    createStripePaymentIntent: build.mutation<
-      { clientSecret: string },
-      { amount: number }
-    >({
+    createStripePaymentIntent: build.mutation<{ clientSecret: string }, { amount: number }>({
       query: ({ amount }) => ({
         url: `/transactions/stripe/payment-intent`,
-        method: "POST",
+        method: 'POST',
         body: { amount },
       }),
     }),
     createTransaction: build.mutation<Transaction, Partial<Transaction>>({
       query: (transaction) => ({
-        url: "transactions",
-        method: "POST",
+        url: 'transactions',
+        method: 'POST',
         body: transaction,
       }),
     }),
@@ -178,16 +183,12 @@ export const api = createApi({
     */
     getUserEnrolledCourses: build.query<Course[], string>({
       query: (userId) => `users/course-progress/${userId}/enrolled-courses`,
-      providesTags: ["Courses", "UserCourseProgress"],
+      providesTags: ['Courses', 'UserCourseProgress'],
     }),
 
-    getUserCourseProgress: build.query<
-      UserCourseProgress,
-      { userId: string; courseId: string }
-    >({
-      query: ({ userId, courseId }) =>
-        `users/course-progress/${userId}/courses/${courseId}`,
-      providesTags: ["UserCourseProgress"],
+    getUserCourseProgress: build.query<UserCourseProgress, { userId: string; courseId: string }>({
+      query: ({ userId, courseId }) => `users/course-progress/${userId}/courses/${courseId}`,
+      providesTags: ['UserCourseProgress'],
     }),
 
     updateUserCourseProgress: build.mutation<
@@ -202,25 +203,18 @@ export const api = createApi({
     >({
       query: ({ userId, courseId, progressData }) => ({
         url: `users/course-progress/${userId}/courses/${courseId}`,
-        method: "PUT",
+        method: 'PUT',
         body: progressData,
       }),
-      invalidatesTags: ["UserCourseProgress"],
-      async onQueryStarted(
-        { userId, courseId, progressData },
-        { dispatch, queryFulfilled }
-      ) {
+      invalidatesTags: ['UserCourseProgress'],
+      async onQueryStarted({ userId, courseId, progressData }, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
-          api.util.updateQueryData(
-            "getUserCourseProgress",
-            { userId, courseId },
-            (draft) => {
-              Object.assign(draft, {
-                ...draft,
-                sections: progressData.sections,
-              });
-            }
-          )
+          api.util.updateQueryData('getUserCourseProgress', { userId, courseId }, (draft) => {
+            Object.assign(draft, {
+              ...draft,
+              sections: progressData.sections,
+            });
+          })
         );
         try {
           await queryFulfilled;
