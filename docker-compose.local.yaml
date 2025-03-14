@@ -1,3 +1,12 @@
+x-shared: &common-service
+  image: node:20-alpine
+  working_dir: /app
+  volumes:
+    - .:/app
+    - /app/node_modules
+  networks:
+    - app-network
+
 services:
   postgres:
     image: postgres:16
@@ -27,14 +36,9 @@ services:
       - app-network
 
   backend:
-    image: node:20-alpine
-    working_dir: /app
+    <<: *common-service
     ports:
       - '8001:8001'
-    volumes:
-      - ./global-bundle.pem:/etc/ssl/certs/global-bundle.pem
-      - .:/app
-      - /app/node_modules
     command:
       [
         '/bin/sh',
@@ -43,34 +47,23 @@ services:
       ]
     depends_on:
       - postgres
-    networks:
-      - app-network
 
   auth:
-    image: node:20-alpine
-    working_dir: /app
+    <<: *common-service
     ports:
       - '4000:4000'
-    volumes:
-      - ./global-bundle.pem:/etc/ssl/certs/global-bundle.pem
-      - .:/app
-      - /app/node_modules
     command:
       ['/bin/sh', '-c', 'npm install -g pnpm && pnpm install --no-frozen-lockfile && pnpm run dev --filter=@apps/auth']
     depends_on:
       - postgres
-    networks:
-      - app-network
+      - redis
 
   frontend:
-    image: node:20-alpine
-    working_dir: /app
+    <<: *common-service
     ports:
       - '3000:3000'
-    volumes:
-      - .:/app
-      - /app/node_modules
-    command: [
+    command:
+      [
         '/bin/sh',
         '-c',
         'npm install -g pnpm && pnpm install --filter=@apps/client --no-frozen-lockfile && pnpm run dev --filter=@apps/client',
@@ -79,8 +72,9 @@ services:
       NEXT_PUBLIC_API_BASE_URL: '/api'
       NEXT_PUBLIC_URL: 'http://localhost:3000'
       NEXT_PUBLIC_STRIPE_PUBLIC_KEY: ${NEXT_PUBLIC_STRIPE_PUBLIC_KEY}
-    networks:
-      - app-network
+    depends_on:
+      - backend
+      - auth
 
 networks:
   app-network:
