@@ -10,7 +10,7 @@ const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: true,
-    ca: fs.readFileSync(process.env.SSL_CA_PATH as string).toString(),
+    ca: fs.readFileSync(process.env.SSL_CA_PATH || '/etc/ssl/certs/global-bundle.pem').toString(),
   },
 });
 

@@ -4,7 +4,7 @@ metadata:
   name: backend
   namespace: lm-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: backend
@@ -23,6 +23,9 @@ spec:
           envFrom:
             - secretRef:
                 name: app-secrets
+          env:
+            - name: SSL_CA_PATH
+              value: '/etc/ssl/certs/global-bundle.pem'
           volumeMounts:
             - name: rds-cert-volume
               mountPath: /etc/ssl/certs/global-bundle.pem
@@ -38,9 +41,9 @@ spec:
         - name: rds-cert-volume
           configMap:
             name: rds-cert
-            items:
-              - key: global-bundle.pem
-                path: global-bundle.pem
+            # items:
+            #   - key: global-bundle.pem
+            #     path: global-bundle.pem
 ---
 apiVersion: v1
 kind: Service
@@ -63,7 +66,7 @@ metadata:
   name: frontend
   namespace: lm-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: frontend
@@ -110,7 +113,7 @@ metadata:
   name: auth
   namespace: lm-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: auth
@@ -129,6 +132,9 @@ spec:
           envFrom:
             - secretRef:
                 name: app-secrets
+          env:
+            - name: SSL_CA_PATH
+              value: '/etc/ssl/certs/global-bundle.pem'
           volumeMounts:
             - name: rds-cert-volume
               mountPath: /etc/ssl/certs/global-bundle.pem
@@ -150,9 +156,9 @@ spec:
         - name: rds-cert-volume
           configMap:
             name: rds-cert
-            items:
-              - key: global-bundle.pem
-                path: global-bundle.pem
+            # items:
+            #   - key: global-bundle.pem
+            #     path: global-bundle.pem
 ---
 apiVersion: v1
 kind: Service
