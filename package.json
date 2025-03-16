@@ -16,6 +16,7 @@
     "db": "pnpm --filter @apps/api",
     "db:init": "pnpm db migrate",
     "docker:up": "docker-compose -f docker-compose.local.yaml up -d",
+    "docker:down": "docker-compose -f docker-compose.local.yaml down",
     "format": "prettier --write .",
     "lint": "turbo run lint",
     "deploy": "turbo run deploy",

@@ -4,6 +4,8 @@ x-shared: &common-service
   volumes:
     - .:/app
     - /app/node_modules
+  environment:
+    - TZ=Asia/Seoul
   networks:
     - app-network
 

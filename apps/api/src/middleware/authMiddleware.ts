@@ -19,7 +19,11 @@ export interface User extends JwtPayload {
   updatedAt: Date | null;
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key'; // JWT 서명 키
+const JWT_SECRET = process.env.JWT_SECRET || ''; // JWT 서명 키
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET is not defined');
+}
+
 
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;

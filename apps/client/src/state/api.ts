@@ -7,7 +7,7 @@ import { refreshAccessToken } from '@/services/authService';
 const customBaseQuery = async (args: string | FetchArgs, api: BaseQueryApi, extraOptions: any) => {
   const baseQuery = fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || '/api',
-    prepareHeaders: async (headers) => {
+    prepareHeaders: (headers) => {
       const token = useAuthStore.getState().accessToken;
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
@@ -56,11 +56,12 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
     // ✅ Refresh Token 요청
     const refreshResult = await refreshAccessToken();
 
-    if (refreshResult?.token) {
+    if (refreshResult && refreshResult.token) {
       console.log('✅ Token refreshed successfully!');
 
-      // 새 액세스 토큰 저장
-      api.dispatch(setToken(refreshResult.token));
+      // // 새 액세스 토큰 저장
+      // setToken(refreshResult.token);
+      // console.log('✅ Retrying original request...', );      
 
       // ✅ 원래 요청 다시 시도
       result = await customBaseQuery(args, api, extraOptions);

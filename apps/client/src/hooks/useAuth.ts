@@ -14,7 +14,7 @@ export const useAuthRefresh = () => {
       }
     };
 
-    // 1시간마다 리프레시 (과부하 방지)
+    // 주기적으로 리프레시 토큰 요청
     const interval = setInterval(refreshToken, 60 * 60 * 1000);
 
     return () => clearInterval(interval);

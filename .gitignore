@@ -48,3 +48,4 @@ infra/pulumi-aws/.acme.sh.tar.gz
 .logs
 
 .pnpm-store
+apps/client/src/app/globals copy.css

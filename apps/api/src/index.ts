@@ -13,6 +13,12 @@ import { verifyToken } from './middleware/authMiddleware';
 /* CONFIGURATIONS */
 dotenv.config();
 
+// 🔥 KST 시간 적용한 date 토큰 재정의
+morgan.token('date', () => {
+  return new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
+});
+
+
 const app = express();
 app.use(express.json());
 app.use(helmet());
