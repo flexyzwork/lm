@@ -6,17 +6,19 @@ on:
       - main
 
 concurrency:
-  group: staging
+  group: main
   cancel-in-progress: true
 
 jobs:
   build-and-push:
-    name: build-and-push
     uses: ./.github/workflows/build_push.yaml
     secrets: inherit
-  
+
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout Repository
@@ -61,4 +63,4 @@ jobs:
       - name: Apply Ingress Configuration
         run: |
           kubectl apply -f k8s/ingress.yaml
-          kubectl get ingress -n lm-app 
+          kubectl get ingress -n lm-app
