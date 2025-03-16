@@ -34,8 +34,13 @@ const customBaseQuery = async (args: string | FetchArgs, api: BaseQueryApi, extr
 
     if (result.data) {
       result.data = result.data.data;
-    } else if (result.error?.status === 204 || result.meta?.response?.status === 24) {
+    } else if (result.error?.status === 204 || result.meta?.response?.status === 204) {
       return { data: null };
+    }
+
+    // 응답이 없거나 빈 객체라면 기본 값 추가
+    if (!result.data && !result.error) {
+      return { data: {} };
     }
 
     return result;
@@ -58,10 +63,6 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
 
     if (refreshResult && refreshResult.token) {
       console.log('✅ Token refreshed successfully!');
-
-      // // 새 액세스 토큰 저장
-      // setToken(refreshResult.token);
-      // console.log('✅ Retrying original request...', );      
 
       // ✅ 원래 요청 다시 시도
       result = await customBaseQuery(args, api, extraOptions);
